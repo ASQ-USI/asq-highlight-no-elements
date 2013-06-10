@@ -1,4 +1,5 @@
 var express = require('express');
+var main = require('./routes/main')
 var app = express();
 
 app.configure(function() {
@@ -9,13 +10,8 @@ app.configure(function() {
     
 });
 
-app.get('/', function(req, res){
-	var questions = new Array();
-	questions.push("What values will be stored in the above three boolean variables?");
-	questions.push("Do we really need an <code>after</code> <b>and</b> a <code>before</code> method? Do we <b>want</b> both?");
-	
-  res.render('page', {questions: questions });
-});
+app.get('/', main.questions);
+
 
 
 
