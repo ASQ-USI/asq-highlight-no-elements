@@ -78,85 +78,37 @@
 <script type="text/javascript">
       
       function formIntercept() {
+	   console.log($('#myTextArea').data('CodeMirrorInstance'));
 	    var editor = $('#myTextArea').data('CodeMirrorInstance');
 	    var markers = editor.getAllMarks();
-	    var toJson = new Array();
+	    
 	    for (var i = 0; i < markers.length; i++) {
-		  toJson.push(markers[i].find());
+		  
+		  console.log(markers[i].find());
 	    }
-	    var finalSend = new Array();
-	    finalSend.push(editor.getValue());
-	    finalSend.push(toJson);
-	    document.getElementById("submitform").elements["hidden"].value = JSON.stringify(finalSend);
+	    document.getElementById("submitform").elements["highlight"] = markers;
       }
  window.onload = function () {
+      
       
       var myTextArea = document.getElementById("myTextArea");
       var editor = CodeMirror.fromTextArea(myTextArea, {
        lineNumbers: true,
         matchBrackets: true,
-        mode: "text/x-java",
-	readOnly: true
+        mode: "text/x-java"
       });
       $('#myTextArea').data('CodeMirrorInstance', editor);
+      <%-results[1]%>
       
-      document.getElementById("clear").onclick = function() {
-	    var markers = editor.getAllMarks();
-	    for (var i = 0; i < markers.length; i++) {
-		  markers[i].clear();
-	    }
- 
-      }
-      
-      $('.color').click(function() {
-	    colorclass = $(this).attr("id");
-	    console.log(colorclass);
-      });
 
       
-      var oldstart = ({line: 0, ch: 0});
-      var oldend = ({line: 0, ch: 0});
       
-      var colorclass = "red";
+      // Style first ten lines, and forbid the cursor from entering them
+//myCodeMirror.markText({line: 0, ch: 0}, {line: 10, ch: 0}, {
+ // className: "bg"
+//});
       
-      editor.on("cursorActivity", function() {
-	    var markerscursor = editor.findMarksAt(editor.getCursor("start"));
-	    var existsmarker = false;
-	    if (markerscursor.length >0) {
-		  if (editor.somethingSelected()) {
-			
-			for (var i = 0; i< markerscursor.length; i++) {
-			      if (markerscursor[i].className == colorclass) {
-				    existsmarker = true;
-				    var start = markerscursor[i].find().from;
-				    var end = markerscursor[i].find().to;
-				    markerscursor[i].clear();
-				    editor.markText(start,editor.getCursor("start"), {className: colorclass});
-				    editor.markText(editor.getCursor("end"), end ,{className: colorclass});
-			      }
-			}
-		  }
-	    }
-	    
-	    if (!existsmarker) {
-		  if (oldstart.line == editor.getCursor("start").line && oldstart.ch == editor.getCursor("start").ch && editor.somethingSelected()) {
-			oldend = editor.getCursor("end");
-		  } else {
-			
-			if (oldend.line == editor.getCursor("end").line && oldend.ch == editor.getCursor("end").ch && editor.somethingSelected()) {
-			      oldstart = editor.getCursor("start");
-			} else {
-			      
-			      editor.markText(oldstart, oldend, {className: colorclass});
-			      oldstart = editor.getCursor("start");
-			      oldend = editor.getCursor("end"); 
-			}
-		  }  
-	    }
-	    console.log(editor.getAllMarks());
-	    
-      });
-
+      
  }
  
  
@@ -267,14 +219,10 @@ Now we may want to compare two TimeStamps:
 </pre>
 
 
-<p>
-<b>Question 1</b>: <%-questions[0]%>
-</p>
+<%-results[0]%>
 
 
-<p>
-<b>Question 2</b>: <%-questions[1]%>
-</p>
+
 <p>
 Now, assume we created another <code>TimeStamp</code>:
 </p>
