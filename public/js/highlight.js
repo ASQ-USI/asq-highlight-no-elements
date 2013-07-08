@@ -29,7 +29,6 @@
       
       var Range = ace.require('ace/range').Range
       , aceEditSession =  aceeditor.getSession()
-      , marker = aceEditSession.addMarker(second,"blue", "text", false);
 
       //handle selection events
       aceEditSession.selection.on('changeSelection', function(e) {
