@@ -12,6 +12,7 @@
       }
  window.onload = function () {
       
+      /// CLEAN ME UP - WATCH FOR CONFLICTS
       var myTextArea = document.getElementById("myTextArea");
       
       var aceeditor = ace.edit("editor");
@@ -27,15 +28,19 @@
       $('#myTextArea').data('CodeMirrorInstance', editor);
       
       var Range = ace.require('ace/range').Range
-      // , first = new Range(0,0,3,0)
-      , second = new Range(6,6,7,7)
+      , aceEditSession =  aceeditor.getSession()
+      , marker = aceEditSession.addMarker(second,"blue", "text", false);
 
-      // aceeditor.getSession().selection.addRange(first);
-     // aceeditor.getSession().selection.addRange(second);
-      var marker = aceeditor.getSession().addMarker(second,"ace_selected_word", "text");
-      //aceeditor.getSession().selection.on('changeSelection', function(e) {
-      //aceeditor.getSession().selection.addRange(aceeditor.getSession().selection.getRange(),true);
-     // });
+      //handle selection events
+      aceEditSession.selection.on('changeSelection', function(e) {
+        //get selection range
+        var selRange = aceEditSession.selection.getRange()
+        //convert range to range!!!
+        , markRange = new Range(selRange.start.row,selRange.start.column,selRange.end.row,selRange.end.column)
+        
+        //add new marker with class "ace_highlight" and "blue"
+        aceEditSession.addMarker(markRange,"ace_highlight blue", "text", false);
+     });
       
       
       document.getElementById("clear").onclick = function() {

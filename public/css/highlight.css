@@ -11,5 +11,9 @@ background-color: green !important;
 }
 
 
+.ace_highlight {
+    position: absolute;
+    z-index: 4;
+}
 
 
