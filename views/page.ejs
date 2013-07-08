@@ -58,19 +58,26 @@
                                white-space:nowrap; }
   .org-info-js_search-highlight {background-color:#ffff00; color:#000000;
                                  font-weight:bold; }
+				 
+  		 
+				 
+      
   /*]]>*/-->
+   
+   
 </style>
-<link rel="stylesheet" type="text/css" href="styles/style.css" />
-<link rel="stylesheet" type="text/css" href="styles/highlight.css" />
+
 
 <!--Codemirror -->
 
 <script src="codemirror/lib/codemirror.js"> </script>
 <link rel="stylesheet" href="codemirror/lib/codemirror.css">
 <script src="codemirror/mode/clike/clike.js"></script>
+<script src="ace/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
 
     
-
+<link rel="stylesheet" type="text/css" href="styles/style.css" />
+<link rel="stylesheet" type="text/css" href="styles/highlight.css" />
 
 <!-- Bootstrap -->
 <link href="styles/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
@@ -92,6 +99,11 @@
  window.onload = function () {
       
       var myTextArea = document.getElementById("myTextArea");
+      
+      var aceeditor = ace.edit("editor");
+      aceeditor.setReadOnly(true);
+      aceeditor.getSession().setMode("ace/mode/java");
+
       var editor = CodeMirror.fromTextArea(myTextArea, {
        lineNumbers: true,
         matchBrackets: true,
@@ -99,6 +111,12 @@
 	readOnly: true
       });
       $('#myTextArea').data('CodeMirrorInstance', editor);
+      
+      var Range = ace.require('ace/range').Range;
+      aceeditor.getSession().selection.on('changeSelection', function(e) {
+	    aceeditor.getSession().selection.addRange(aceeditor.getSession().selection.getRange(),true);
+      });
+      
       
       document.getElementById("clear").onclick = function() {
 	    var markers = editor.getAllMarks();
@@ -205,9 +223,15 @@
 
 
 
+
 <div id="outline-container-1" class="outline-2">
 <h2 id="sec-1"><span class="section-number-2">1</span> Preparation</h2>
 <div class="outline-text-2" id="text-1">
+
+
+
+
+
 
 <p>In this challenge we will develop two classes. Therefore, let's first create a project.
 </p>
@@ -268,7 +292,20 @@ Now we may want to compare two TimeStamps:
 
 
 <p>
-<b>Question 1</b>: <%-questions[0]%>
+<b>Question 1</b>: Highlight the variable names in the following code:
+<div id="editor">TimeStamp t1 = new TimeStamp(1);
+TimeStamp t2 = new TimeStamp(2);
+TimeStamp t3 = new TimeStamp(3);
+TimeStamp t4 = new TimeStamp(4);
+TimeStamp t5 = new TimeStamp(5);
+TimeStamp t6 = new TimeStamp(6);
+TimeStamp t7 = new TimeStamp(7);
+</div>
+    
+<style>
+      .ace_selection {  background: red !important;}
+</style>
+
 </p>
 
 

@@ -14,6 +14,7 @@ app.configure(function() {
     app.set('view engine', 'ejs');
     app.use("/styles", express.static(__dirname + '/styles'));
     app.use("/codemirror", express.static(__dirname + '/codemirror'));
+    app.use("/ace", express.static(__dirname + '/ace'));
     
 });
 
