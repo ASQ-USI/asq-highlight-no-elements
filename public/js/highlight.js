@@ -15,9 +15,7 @@
       /// CLEAN ME UP - WATCH FOR CONFLICTS
       var myTextArea = document.getElementById("myTextArea");
       
-      var aceeditor = ace.edit("editor");
-      aceeditor.setReadOnly(true);
-      aceeditor.getSession().setMode("ace/mode/java");
+      
 
       var editor = CodeMirror.fromTextArea(myTextArea, {
        lineNumbers: true,
@@ -27,19 +25,32 @@
       });
       $('#myTextArea').data('CodeMirrorInstance', editor);
       
+      
+      var aceeditor = ace.edit("editor");
+      aceeditor.setReadOnly(true);
+      aceeditor.getSession().setMode("ace/mode/java");
+      
       var Range = ace.require('ace/range').Range
       , aceEditSession =  aceeditor.getSession()
 
       //handle selection events
       aceEditSession.selection.on('changeSelection', function(e) {
-        //get selection range
-        var selRange = aceEditSession.selection.getRange()
-        //convert range to range!!!
-        , markRange = new Range(selRange.start.row,selRange.start.column,selRange.end.row,selRange.end.column)
+          console.log(aceEditSession.selection.isEmpty());
+          
+          if (!aceEditSession.selection.isEmpty()) {
+               //get selection range
+               //var selRange = aceEditSession.selection.getRange()
+               //convert range to range!!!
+               //, markRange = new Range(selRange.start.row,selRange.start.column,selRange.end.row,selRange.end.column)
         
-        //add new marker with class "ace_highlight" and "blue"
-        aceEditSession.addMarker(markRange,"ace_highlight blue", "text", false);
-     });
+               //add new marker with class "ace_highlight" and "blue"
+               //aceEditSession.addMarker(markRange,"ace_highlight blue", "text", false);
+               //console.log(aceEditSession.getMarkers());
+          }
+        
+     });      
+      
+      
       
       
       document.getElementById("clear").onclick = function() {
