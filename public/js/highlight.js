@@ -33,58 +33,22 @@
       aceeditor.setReadOnly(true);
       aceeditor.getSession().setMode("ace/mode/java");
       
-      var maybeempty = 0;
-      var Range = ace.require('ace/range').Range
+      var maybeempty = 0
+      , Range = ace.require('ace/range').Range
       , aceEditSession =  aceeditor.getSession()
-      var amore = 0;
+      , amore = 0;
 
       //handle selection events
       aceEditSession.selection.on('changeSelection', function(e) {
-          var empty = aceEditSession.selection.isEmpty();
-          console.log(aceEditSession.selection.getRange().start, aceEditSession.selection.getRange().end);
-          console.log(empty);
-          if (!empty) {
-               var markers = aceEditSession.getMarkers();
-               for (var marker in markers) {
-                    if (marker!=2) {
-                         if ((markers[marker].range.start.row <= aceEditSession.selection.getRange().start.row)) { //&& (markers[marker].range.start.column < aceEditSession.selection.getRange().start.column ) && (markers[marker].range.end.row <= aceEditSession.selection.getRange().end.row) && (markers[marker].range.end.column < aceEditSession.selection.getRange().end.column ) ) {
-                              
-                              //aceEditSession.removeMarker(marker);
-                         }
-                    }
-                    
-                    
-               }
-               maybeempty = 0;
-               var selRange = aceEditSession.selection.getRange()
-               , markRange = new Range(selRange.start.row,selRange.start.column,selRange.end.row,selRange.end.column);
-               
-               amore = aceEditSession.addMarker(markRange,"ace_highlight blue", "text", false);
-               console.log(aceEditSession.getMarkers());
-          }
-          if (empty) {
-               maybeempty+=1;
-          }
-          if (maybeempty > 1) {
-               var markers = aceEditSession.getMarkers();
-               for (var marker in markers) {
-                    if (marker == amore) {
-                         aceEditSession.removeMarker(marker);
-                    }
-               }
-          }
-          
-          
-          if (!aceEditSession.selection.isEmpty()) {
-               //get selection range
-               //v
-               //convert range to range!!!
-               //
-        
-               //add new marker with class "ace_highlight" and "blue"
-               //a
-               //
-          }
+
+        setTimeout(function(){
+          if (aceEditSession.selection.isEmpty()) {return;}
+           var selRange = aceEditSession.selection.getRange()
+             , markRange = new Range(selRange.start.row,selRange.start.column,selRange.end.row,selRange.end.column);
+             
+             amore = aceEditSession.addMarker(markRange,"ace_highlight blue", "text", false);
+             console.log(aceEditSession.getMarkers());
+        },5)
         
      });      
       
