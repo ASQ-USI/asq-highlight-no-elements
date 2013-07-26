@@ -1,0 +1,78 @@
+%This LaTeX Template was designed for use freely by anyone for student work and research
+%within the Università della Svizzera Italiana and cannot be sold.
+%Copyright © Jacques DAFFLON -- jacques.dafflon@gmail.com - 2011
+
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8x]{inputenc}
+\usepackage[top=2.5cm, bottom=3cm, left=2cm, right=2cm]{geometry} %Redfining the margins
+\usepackage{titling} %for using title data such as '\theauthor'
+\usepackage{fancyhdr} %Allows to customize header and footnotes
+\usepackage{hyperref} %Creates links and bookmarks on the pdf file
+\usepackage{helvet} %Using Helvetica Font
+\renewcommand{\familydefault}{\sfdefault} %Sans Serif as default
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+
+% Title Page
+\title{Different Editor plugins review} %DON'T FORGET TO FILL IN!
+\author{Margarita \textsc{Grinvald} } 
+\date{July 26, 2013} %CHECK THE DATE!
+
+%Variables
+\def\school{\textsc{Università della Svizzera Italiana}} %School name
+\def\faculty{\textsc{Faculty of Informatics}} %Faculty name
+\def\course{Summer 2013 UROP Internship: InformaWeb} %DON'T FORGET TO FILL IN!
+
+%Header and footer
+%Do not edit here, only above!
+\fancyhf{} %reset everything
+\pagestyle{fancy}
+\fancypagestyle{plain}{}
+\setlength{\headheight}{12pt}
+\lhead{\theauthor}
+\rhead{\thedate}
+\lfoot{\footnotesize{\school\\\faculty}}
+\cfoot{\small page \thepage}
+\rfoot{\footnotesize{\course\\\thetitle}}
+
+
+\begin{document}
+\maketitle
+%Start writting here.
+
+In InformaWeb we try to implement a new type of question, based on highlighting text.\\
+The highlight will work on top of a code editor with Syntax Highlight feature.\\\\
+Typical usage scenarios are:
+\begin{enumerate}
+\item Teacher providing correct solutions to the questions by highlighting pieces of text
+\item Students highlighting keywords
+\item Students highlighting blocks representing different structures to identify 
+\end{enumerate}
+
+
+\section*{User Experience Requirements}
+
+\begin{enumerate}
+\item Highlighting adhers to existing standards (will behave like in well known text-editors such as Word, with different color options.)
+\item Availabilty of arbitrary \emph{n} visually distinct colors for different types of elements to identify in the piece of code.
+\item Dehighlighting as intuitive as possible, either by allowing the user to remove only entire blocks of highlighted text or by allowing the inverse of the highlighting process.
+
+\end{enumerate}
+
+\section*{Implementation Details}
+
+\subsection*{Events fired}
+
+On user's cursor activity an event is fired and a check needs to be done, whether it was just a \emph{mouseClick} or some piece of text was selected.
+
+\paragraph*{CodeMirror}
+The event that fires is \emph{"cursorActivity"}, and with the help of \emph{editor.somethingSelected()} method the check is easily and correctly done by the plugin. 
+
+\paragraph*{Ace Editor}
+The events available are two: \emph{changeCursor} and \emph{changeSelection}.\\ With the first the method \emph{editSession.selection.isEmpty()} always returns \emph{false}, meaning that a simple click will trigger the creation of a new selection marker from the previous cursor position to the current one. \\
+The second event is more "secure", meaning that simple clicks won't create new selections in the text, but the event is fired three times instead of one when a simple click occurs. This causes a problem, since the first time it's fired the method \emph{editSession.selection.isEmpty()} returns \emph{false}, causing therefore the creation of a new selection mark in the text.\\
+To avoid the problem I was suggested to call the check method \emph{isEmpty()} synchronously. This helps to solve the issue, and properly use \emph{changeSelection} to properly respond to user activity and if needed add a selection marker.
+
+
+\end{document}          
