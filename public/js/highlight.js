@@ -13,21 +13,34 @@
  window.onload = function () {
       
       /// CLEAN ME UP - WATCH FOR CONFLICTS
-      var myTextArea = document.getElementById("myTextArea");
       
-      
-
-      var editor = CodeMirror.fromTextArea(myTextArea, {
+      ///CODEMIRROR
+      var codeMirrorTextArea = document.getElementById("myTextArea");
+      var codeMirrorEditor = CodeMirror.fromTextArea(codeMirrorTextArea, {
        lineNumbers: true,
         matchBrackets: true,
         mode: "text/x-java",
-  readOnly: true
+     readOnly: true
       });
-      $('#myTextArea').data('CodeMirrorInstance', editor);
       
       
+      /// SIMPLE COLOR
       
+      var selectionColor = "hexff0000";
       
+      $('.simple_color').simpleColor({
+          cellWidth: 20,
+          boxWidth: 20,
+          border: '0px solid #fff',
+          cellHeight: 20,
+          columns: 3,
+          colors: ["ff0000", "0000ff", "00ff00"],
+          onSelect: function(hex) {
+               selectionColor = "hex"+hex;
+          }
+     });
+      
+      ///ACE EDITOR
       
       var aceeditor = ace.edit("editor");
       aceeditor.setReadOnly(true);
@@ -46,7 +59,7 @@
            var selRange = aceEditSession.selection.getRange()
              , markRange = new Range(selRange.start.row,selRange.start.column,selRange.end.row,selRange.end.column);
              
-             amore = aceEditSession.addMarker(markRange,"ace_highlight blue", "text", false);
+             amore = aceEditSession.addMarker(markRange,"ace_highlight "+selectionColor, "text", false);
              console.log(aceEditSession.getMarkers());
         },5)
         

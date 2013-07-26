@@ -1,19 +1,21 @@
-.red {
-background-color: red !important;
-}
-
-.blue {
-background-color: blue !important;
-}
-
-.green {
-background-color: green !important;
-}
-
-
 .ace_highlight {
     position: absolute;
     z-index: 4;
 }
+
+.hexff0000 {
+background-color: red !important;
+}
+
+.hex0000ff {
+background-color: blue !important;
+}
+
+.hex00ff00 {
+background-color: green !important;
+}
+
+
+
 
 
