@@ -49,18 +49,50 @@
       var maybeempty = 0
       , Range = ace.require('ace/range').Range
       , aceEditSession =  aceeditor.getSession()
-      , amore = 0;
+      , removed = false
+      , oldstart = null
+      , oldend = null
+      , lastMarker = null;
 
       //handle selection events
       aceEditSession.selection.on('changeSelection', function(e) {
+          
+          var selRange = aceEditSession.selection.getRange();
 
         setTimeout(function(){
           if (aceEditSession.selection.isEmpty()) {return;}
-           var selRange = aceEditSession.selection.getRange()
-             , markRange = new Range(selRange.start.row,selRange.start.column,selRange.end.row,selRange.end.column);
+          var markers = aceEditSession.getMarkers();
+          console.log(markers);
+          for (var marker in markers) {
+               if (markers[marker].type == "text" && marker != 2) {
+                    
+                    if (markers[marker].range.start.row == selRange.start.row && markers[marker].range.start.column == selRange.start.column && markers[marker].range.end.row == selRange.end.row && markers[marker].range.end.column == selRange.end.column) {
+                         console.log(markers[marker].range.start, markers[marker].range.end);
+                         console.log(selRange.start, selRange.end);
+                         aceEditSession.removeMarker(marker);
+                         console.log(marker);
+                         removed = true;
+                         console.log("found");
+                         
+                    }
+               }
+          }
+          if (!removed) {
+               var currentstart = aceEditSession.selection.getSelectionAnchor();
+               if (oldstart!= null) {
+                    if (currentstart.row == oldstart.row && currentstart.column == oldstart.column) {
+                    aceEditSession.removeMarker(lastMarker);
+                    console.log("continuing");
+               }
+               }
+               
+               var markRange = new Range(selRange.start.row,selRange.start.column,selRange.end.row,selRange.end.column);
+               lastMarker = aceEditSession.addMarker(markRange,"ace_highlight "+selectionColor, "text", false);
+               oldstart = aceEditSession.selection.getSelectionAnchor();
+          }
              
-             amore = aceEditSession.addMarker(markRange,"ace_highlight "+selectionColor, "text", false);
-             console.log(aceEditSession.getMarkers());
+          removed = false;
+          console.log(" ");
         },5)
         
      });      
