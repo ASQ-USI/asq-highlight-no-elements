@@ -10,6 +10,79 @@
  //      finalSend.push(toJson);
  //      document.getElementById("submitform").elements["hidden"].value = JSON.stringify(finalSend);
  //      }
+ 
+ ///returns 0 if range2 is outside range1, 1 if range2 is at the left most border of range1, 2 if its at the rightmost border of range1, 3 if it's inside range 1
+ function includes(range1, range2) {
+     if (range1.start.row < range2.start.row) {
+          if (range1.end.row > range2.end.row) {
+               return 3;
+          } else {
+               if (range1.end.row == range2.end.row) {
+                    if (range1.end.column == range2.end.column) {
+                         return 2;
+                    } else {
+                         if (range1.end.column > range2.end.column) {
+                              return 3;
+                         } else {
+                              return 0;
+                         }
+                    }
+               } else {
+                    return 0;
+               }
+          }
+     } else {
+          if (range1.start.row == range2.start.row) {
+               if (range1.start.column < range2.start.column) {
+                    if (range1.end.row > range2.end.row) {
+                         return 3;
+                    } else {
+                         if (range1.end.row == range2.end.row) {
+                              if (range1.end.column == range2.end.column) {
+                                   return 2;
+                              } else {
+
+                                   if (range1.end.column > range2.end.column) {
+                                        
+                                        return 3;
+                                   } else {
+                                        return 0;
+                                   }
+                              }
+                         } else {
+                              return 0;
+                         }
+                    }    
+               } else {
+                    if (range1.start.column == range2.start.column) {
+                         if (range1.end.row > range2.end.row) {
+                              return 1;
+                         } else {
+                              if (range1.end.row == range2.end.row) {
+                                   if (range1.end.column == range2.end.column) {
+                                        return 3;
+                                   } else {
+                                        if (range1.end.column > range2.end.column) {
+                                             return 1;
+                                        } else {
+                                             return 0;
+                                        }
+                                   }
+                              } else {
+                                   return 0;
+                              }
+                         }   
+                    } else {
+                         return 0;
+                    }
+                    
+               }
+          } else {
+               return 0;
+          }
+     }
+ }
+ 
  window.onload = function () {
       
       /// CLEAN ME UP - WATCH FOR CONFLICTS
@@ -51,8 +124,8 @@
       , aceEditSession =  aceeditor.getSession()
       , removed = false
       , oldstart = null
-      , oldend = null
-      , lastMarker = null;
+      , lastMarker = null
+      , dehigh = null;
 
       //handle selection events
       aceEditSession.selection.on('changeSelection', function(e) {
@@ -65,15 +138,40 @@
           console.log(markers);
           for (var marker in markers) {
                if (markers[marker].type == "text" && marker != 2) {
+                    var markerRange = markers[marker].range;
                     
-                    if (markers[marker].range.start.row == selRange.start.row && markers[marker].range.start.column == selRange.start.column && markers[marker].range.end.row == selRange.end.row && markers[marker].range.end.column == selRange.end.column) {
-                         console.log(markers[marker].range.start, markers[marker].range.end);
-                         console.log(selRange.start, selRange.end);
+                    dehigh = selRange;
+                    var currentstart = aceEditSession.selection.getSelectionAnchor();
+                    if (currentstart.row == oldstart.row && currentstart.column == oldstart.column) {
+                         if (aceEditSession.selection.isBackwards()) {
+                              dehigh = new Range(selRange.start.row, selRange.start.column, aceEditSession.selection.getSelectionLead().row, aceEditSession.selection.getSelectionLead().column);
+                         } else {
+                              dehigh = new Range(aceEditSession.selection.getSelectionLead().row, aceEditSession.selection.getSelectionLead().column, selRange.end.row, selRange.end.column);
+                              
+                         }
+                    }
+                    var rangeIncludes = includes(markers[marker].range, dehigh);
+                    if (rangeIncludes == 1) {
+                         //console.log(selRange.end.row, selRange.end.column, markers[marker].range.end.row, markers[marker].range.end.column);
+                         var markRange = new Range(dehigh.end.row, dehigh.end.column, markers[marker].range.end.row, markers[marker].range.end.column);
                          aceEditSession.removeMarker(marker);
-                         console.log(marker);
+                         var newMarker = aceEditSession.addMarker(markRange,"ace_highlight "+selectionColor, "text", false);
                          removed = true;
-                         console.log("found");
-                         
+                         oldstart = aceEditSession.selection.getSelectionAnchor();
+                    }
+                    if (rangeIncludes == 2) {
+                         var markRange = new Range(markers[marker].range.start.row, markers[marker].range.start.column, dehigh.start.row, dehigh.start.column);
+                         aceEditSession.removeMarker(marker);
+                         var newMarker = aceEditSession.addMarker(markRange,"ace_highlight "+selectionColor, "text", false);
+                         removed = true;  
+                    }
+                    if (rangeIncludes == 3) {
+                         var markRange1 = new Range(markers[marker].range.start.row, markers[marker].range.start.column, dehigh.start.row, dehigh.start.column);
+                         var markRange2 = new Range(dehigh.end.row, dehigh.end.column, markers[marker].range.end.row, markers[marker].range.end.column);
+                         aceEditSession.removeMarker(marker);
+                         var newMarker1 = aceEditSession.addMarker(markRange1,"ace_highlight "+selectionColor, "text", false);
+                         var newMarker2 = aceEditSession.addMarker(markRange2,"ace_highlight "+selectionColor, "text", false);
+                         removed = true;  
                     }
                }
           }
@@ -81,9 +179,8 @@
                var currentstart = aceEditSession.selection.getSelectionAnchor();
                if (oldstart!= null) {
                     if (currentstart.row == oldstart.row && currentstart.column == oldstart.column) {
-                    aceEditSession.removeMarker(lastMarker);
-                    console.log("continuing");
-               }
+                         aceEditSession.removeMarker(lastMarker);
+                    }
                }
                
                var markRange = new Range(selRange.start.row,selRange.start.column,selRange.end.row,selRange.end.column);
