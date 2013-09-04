@@ -135,11 +135,17 @@ function rangeMinus(range1, range2) {
      return result;
 }
 
+function toString(marker) {
+     var result = "Range (From: [row: " + marker.range.start.row + ", col: "+ marker.range.start.column + "], To: [row: " + marker.range.end.row + ", col: " + marker.range.end.column + "])\n"
+     return result;
+}
+
  window.onload = function () {
 
    /// CLEAN ME UP - WATCH FOR CONFLICTS
 
    ///CODEMIRROR
+   /*
    var codeMirrorTextArea = document.getElementById("myTextArea");
    var codeMirrorEditor = CodeMirror.fromTextArea(codeMirrorTextArea, {
      lineNumbers: true,
@@ -147,19 +153,21 @@ function rangeMinus(range1, range2) {
      mode: "text/x-java",
      readOnly: true
    });
+   */
 
 
    /// SIMPLE COLOR
 
    var selectionColor = "hexff0000";
+   var ranges = document.getElementById("rangestext");
 
    $('.simple_color').simpleColor({
      cellWidth: 20,
      boxWidth: 20,
-     border: '0px solid #fff',
+     border: '1px solid #000',
      cellHeight: 20,
-     columns: 3,
-     colors: ["ff0000", "0000ff", "00ff00"],
+     columns: 4,
+     colors: ["ff0000", "0000ff", "00ff00", "ffffff"],
      onSelect: function (hex) {
        selectionColor = "hex" + hex;
      }
@@ -190,64 +198,78 @@ function rangeMinus(range1, range2) {
    }
 
    function onChangeSelection() {
-     var selRange = aceEditSession.selection.getRange();
      if (aceEditSession.selection.isEmpty()) {
-       return;
-     }
-     var markers = aceEditSession.getMarkers();
-     console.log(markers);
-     for (var marker in markers) {
-       if (markers[marker].type == "text" && marker != 2) {
-         var markerRange = markers[marker].range;
-
-         dehigh = selRange;
-         
-         var currentstart = aceEditSession.selection.getSelectionAnchor();
-         if (currentstart.row == oldstart.row && currentstart.column == oldstart.column) {
-           dehigh = rangeMinus(oldRange, dehigh);
-         }
-         var rangeIncludes = includes(markers[marker].range, dehigh);
-         if (rangeIncludes == 1) {
-           var markRange = new Range(dehigh.end.row, dehigh.end.column, markers[marker].range.end.row, markers[marker].range.end.column);
-           aceEditSession.removeMarker(marker);
-           addMarker(markRange);
-           removed = true;
-           oldstart = aceEditSession.selection.getSelectionAnchor();
-         }
-         if (rangeIncludes == 2) {
-           var markRange = new Range(markers[marker].range.start.row, markers[marker].range.start.column, dehigh.start.row, dehigh.start.column);
-           aceEditSession.removeMarker(marker);
-           addMarker(markRange);
-           removed = true;
-         }
-         if (rangeIncludes == 3) {
-           var markRange1 = new Range(markers[marker].range.start.row, markers[marker].range.start.column, dehigh.start.row, dehigh.start.column);
-           var markRange2 = new Range(dehigh.end.row, dehigh.end.column, markers[marker].range.end.row, markers[marker].range.end.column);
-           aceEditSession.removeMarker(marker);
-           addMarker(markRange1);
-           addMarker(markRange2);
-           removed = true;
-         }
-       }
-     }
-     if (!removed) {
-       var currentstart = aceEditSession.selection.getSelectionAnchor();
-       if (oldstart != null) {
-         if (currentstart.row == oldstart.row && currentstart.column == oldstart.column) {
-           aceEditSession.removeMarker(lastMarker);
-         }
-       }
+          return;
      }
      
-     var markRange = new Range(selRange.start.row, selRange.start.column, selRange.end.row, selRange.end.column);
-     oldstart = aceEditSession.selection.getSelectionAnchor();
-     oldRange = markRange;
-       
-     if (!removed) {
-          lastMarker = aceEditSession.addMarker(markRange, "ace_highlight " + selectionColor, "text", false); 
+     var selRange = aceEditSession.selection.getRange();
+     
+     
+     if (selectionColor == "ffffff") {
+          for (var marker in markers) {
+            if (markers[marker].type == "text" && marker != 2) {
+              var markerRange = markers[marker].range;
+              dehigh = selRange;
+              
+              var currentstart = aceEditSession.selection.getSelectionAnchor();
+              if (currentstart.row == oldstart.row && currentstart.column == oldstart.column) {
+               dehigh = rangeMinus(oldRange, dehigh);
+              }
+              var rangeIncludes = includes(markers[marker].range, dehigh);
+              if (rangeIncludes == 1) {
+               if (dehigh.end.row != markers[marker].range.end.row || dehigh.end.column != markers[marker].range.end.column) {
+                    var markRange = new Range(dehigh.end.row, dehigh.end.column, markers[marker].range.end.row, markers[marker].range.end.column);
+                    addMarker(markRange);
+               }
+                aceEditSession.removeMarker(marker);
+              }
+              if (rangeIncludes == 2) {
+               if (markers[marker].range.start.row!=dehigh.start.row ||  markers[marker].range.start.column != dehigh.start.column) {
+                    var markRange = new Range(markers[marker].range.start.row, markers[marker].range.start.column, dehigh.start.row, dehigh.start.column);
+                    addMarker(markRange);
+               }
+                aceEditSession.removeMarker(marker);
+     
+              }
+              if (rangeIncludes == 3) {
+               if (markers[marker].range.start.row!=dehigh.start.row ||markers[marker].range.start.column!= dehigh.start.column ) {
+                    var markRange1 = new Range(markers[marker].range.start.row, markers[marker].range.start.column, dehigh.start.row, dehigh.start.column);
+                    addMarker(markRange1);
+               }
+               if (dehigh.end.row!=markers[marker].range.end.row || dehigh.end.column!= markers[marker].range.end.column) {
+                    var markRange2 = new Range(dehigh.end.row, dehigh.end.column, markers[marker].range.end.row, markers[marker].range.end.column);
+                    addMarker(markRange2);         
+               }
+                
+                aceEditSession.removeMarker(marker);
+              }
+            }
+          }
+          
+          var markRange = new Range(selRange.start.row, selRange.start.column, selRange.end.row, selRange.end.column);
+          oldstart = aceEditSession.selection.getSelectionAnchor();
+          oldRange = markRange;
+          
+     } else {
+          var currentstart = aceEditSession.selection.getSelectionAnchor();
+          if (oldstart != null) {
+               if (currentstart.row == oldstart.row && currentstart.column == oldstart.column) {
+                    aceEditSession.removeMarker(lastMarker);
+               }
+          }
+          var markRange = new Range(selRange.start.row, selRange.start.column, selRange.end.row, selRange.end.column);
+          oldstart = aceEditSession.selection.getSelectionAnchor();
+          oldRange = markRange;
+          lastMarker = aceEditSession.addMarker(markRange, "ace_highlight " + selectionColor, "text", false);
+          var markers = aceEditSession.getMarkers();
+          ranges.value = ranges.value + toString(markers[lastMarker]);
+          
      }
-     removed = false;
+     
      console.log(" ");
+     
+     var markers = aceEditSession.getMarkers();
+     console.log(markers);
    }
 
 
