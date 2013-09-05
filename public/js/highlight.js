@@ -135,8 +135,8 @@ function rangeMinus(range1, range2) {
      return result;
 }
 
-function toString(marker) {
-     var result = "Range (From: [row: " + marker.range.start.row + ", col: "+ marker.range.start.column + "], To: [row: " + marker.range.end.row + ", col: " + marker.range.end.column + "])\n"
+function toString(marker, id) {
+     var result = "<option id=option" +id+ ">Range (From: [row: " + marker.range.start.row + ", col: "+ marker.range.start.column + "], To: [row: " + marker.range.end.row + ", col: " + marker.range.end.column + "])</option>"
      return result;
 }
 
@@ -187,14 +187,15 @@ function toString(marker) {
      oldRange = null,
      lastMarker = null,
      dehigh = null;
+     markerks = null;
 
    //handle selection events
    aceEditSession.selection.on('changeSelection', function (e) {
      setTimeout(onChangeSelection, 5)
    });
    
-   function addMarker(markRange) {
-     aceEditSession.addMarker(markRange, "ace_highlight " + selectionColor, "text", false);
+   function addMarker(markRange, clazz) {
+     return aceEditSession.addMarker(markRange, clazz, "text", false);
    }
 
    function onChangeSelection() {
@@ -203,45 +204,55 @@ function toString(marker) {
      }
      
      var selRange = aceEditSession.selection.getRange();
+     var oldColor = selectionColor;
      
-     
-     if (selectionColor == "ffffff") {
+     if (selectionColor == "hexffffff") {
           for (var marker in markers) {
             if (markers[marker].type == "text" && marker != 2) {
               var markerRange = markers[marker].range;
               dehigh = selRange;
-              
               var currentstart = aceEditSession.selection.getSelectionAnchor();
               if (currentstart.row == oldstart.row && currentstart.column == oldstart.column) {
                dehigh = rangeMinus(oldRange, dehigh);
               }
               var rangeIncludes = includes(markers[marker].range, dehigh);
+              
               if (rangeIncludes == 1) {
+               
                if (dehigh.end.row != markers[marker].range.end.row || dehigh.end.column != markers[marker].range.end.column) {
                     var markRange = new Range(dehigh.end.row, dehigh.end.column, markers[marker].range.end.row, markers[marker].range.end.column);
-                    addMarker(markRange);
+                    var marker1 = addMarker(markRange, markers[marker].clazz);
+                    ranges.innerHTML = ranges.innerHTML + toString(markers[marker1], marker1);
                }
                 aceEditSession.removeMarker(marker);
+                console.log(marker);
+                document.getElementById("option"+marker).remove();
               }
               if (rangeIncludes == 2) {
                if (markers[marker].range.start.row!=dehigh.start.row ||  markers[marker].range.start.column != dehigh.start.column) {
                     var markRange = new Range(markers[marker].range.start.row, markers[marker].range.start.column, dehigh.start.row, dehigh.start.column);
-                    addMarker(markRange);
+                    var marker1 = addMarker(markRange, markers[marker].clazz);
+                    ranges.innerHTML = ranges.innerHTML + toString(markers[marker1], marker1);
                }
                 aceEditSession.removeMarker(marker);
+                document.getElementById("option"+marker).remove();
      
               }
               if (rangeIncludes == 3) {
                if (markers[marker].range.start.row!=dehigh.start.row ||markers[marker].range.start.column!= dehigh.start.column ) {
                     var markRange1 = new Range(markers[marker].range.start.row, markers[marker].range.start.column, dehigh.start.row, dehigh.start.column);
-                    addMarker(markRange1);
+                    var marker1 = addMarker(markRange1, markers[marker].clazz);
+                    ranges.innerHTML = ranges.innerHTML + toString(markers[marker1], marker1);
                }
                if (dehigh.end.row!=markers[marker].range.end.row || dehigh.end.column!= markers[marker].range.end.column) {
                     var markRange2 = new Range(dehigh.end.row, dehigh.end.column, markers[marker].range.end.row, markers[marker].range.end.column);
-                    addMarker(markRange2);         
+                    var marker2 = addMarker(markRange2, markers[marker].clazz);
+                    ranges.innerHTML = ranges.innerHTML + toString(markers[marker2], marker2);
                }
                 
                 aceEditSession.removeMarker(marker);
+                document.getElementById("option"+marker).remove();
+                
               }
             }
           }
@@ -253,22 +264,23 @@ function toString(marker) {
      } else {
           var currentstart = aceEditSession.selection.getSelectionAnchor();
           if (oldstart != null) {
-               if (currentstart.row == oldstart.row && currentstart.column == oldstart.column) {
+               if (currentstart.row == oldstart.row && currentstart.column == oldstart.column && oldColor == selectionColor ) {
                     aceEditSession.removeMarker(lastMarker);
+                    document.getElementById("option"+lastMarker).remove();
                }
           }
           var markRange = new Range(selRange.start.row, selRange.start.column, selRange.end.row, selRange.end.column);
           oldstart = aceEditSession.selection.getSelectionAnchor();
           oldRange = markRange;
-          lastMarker = aceEditSession.addMarker(markRange, "ace_highlight " + selectionColor, "text", false);
-          var markers = aceEditSession.getMarkers();
-          ranges.value = ranges.value + toString(markers[lastMarker]);
+          lastMarker = addMarker(markRange, "ace_highlight " + selectionColor);
+          markers = aceEditSession.getMarkers();
+          ranges.innerHTML = ranges.innerHTML + toString(markers[lastMarker], lastMarker);
           
      }
      
      console.log(" ");
      
-     var markers = aceEditSession.getMarkers();
+     markers = aceEditSession.getMarkers();
      console.log(markers);
    }
 
