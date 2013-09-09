@@ -31,6 +31,18 @@ var Highlight = (function(){
 
     return pos1.row > pos2.row ? pos1 : pos2;
   }
+  
+  var listElement = function(marker, preview, extended) {
+     if (preview.length > 20 && !extended) {
+          preview = preview.slice(0,20);
+          preview = preview.concat("...");
+     }
+     var result = preview + " - "
+     + marker.range.start.row + ":" + marker.range.start.column
+     + " - " + marker.range.end.row + ":" + marker.range.end.column;
+     
+     return result;
+  }
 
   /**
    * Creates an instance of Highlight.
@@ -64,7 +76,6 @@ var Highlight = (function(){
     var self=this;
     this.$ranges = $("#rangestext");
 
-
     //setup Color picker plugin
     $('.simple_color').simpleColor({
      cellWidth: 20,
@@ -90,6 +101,25 @@ var Highlight = (function(){
     //handle selection events
     this.aceEditSession.selection.on('changeSelection', function (e) {
      setTimeout(onChangeSelection, 5)
+    });
+    
+    var aceEditor = this.aceEditSession;
+    var markers = aceEditor.getMarkers();
+    
+    $("#rangestext").on("click", ">li", function(){
+          var index = parseInt(event.target.id.slice(5));
+          var marker = markers[index];
+          var preview = aceEditor.getTextRange(marker.range); 
+     if ($("#"+event.target.id).hasClass("collapsed")) {
+         $("#"+event.target.id).html(listElement(markers[index], preview, true));
+     } else {
+          $("#"+event.target.id).html(listElement(markers[index], preview, false));
+     }
+     $("#"+event.target.id).toggleClass("collapsed");
+     $("#"+event.target.id).toggleClass("expanded");
+     
+     
+     
     });
   }
 
@@ -139,7 +169,7 @@ var Highlight = (function(){
          if (currentstart.row == this.oldstart.row && currentstart.column == this.oldstart.column && oldColor == this.selectionColor ) {
               this.aceEditSession.removeMarker(this.lastMarker);
               console.log("lastMarker: " + this.lastMarker)
-              $("#option"+this.lastMarker).remove();
+              $("#range"+this.lastMarker).remove();
          }
     }
     markRange = selRange;
@@ -168,10 +198,9 @@ var Highlight = (function(){
           }
           if (adjacent) {
                toRemove.push(key);
-               $("#option"+key).remove();
+               $("#range"+key).remove();
                
                markRange = new Range(start.row, start.column, end.row, end.column);
-               console.log("new markrange", markRange);
           }
       }
     }
@@ -182,7 +211,7 @@ var Highlight = (function(){
           this.oldRange = markRange;
           this.lastMarker = this.addMarker(markRange, "ace_highlight " + this.selectionColor);
           var markers = this.aceEditSession.getMarkers();
-          this.$ranges.append(this.printMarker(markers[this.lastMarker], this.lastMarker));
+          this.$ranges.append(this.printMarker(markers[this.lastMarker], this.lastMarker, false));
     } else {
           var clazz = null;
           for (var i = 0; i < toRemove.length; i++) {
@@ -190,7 +219,7 @@ var Highlight = (function(){
                this.aceEditSession.removeMarker(toRemove[i]);
           }
           var marker1 = this.addMarker(markRange, clazz);
-          this.$ranges.append(this.printMarker(markers[marker1], marker1));
+          this.$ranges.append(this.printMarker(markers[marker1], marker1, false));
           this.oldstart = this.aceEditSession.selection.getSelectionAnchor();
           this.oldRange = markRange;
      
@@ -222,36 +251,36 @@ var Highlight = (function(){
         switch (rangeIncludes){
           case 1:
                this.aceEditSession.removeMarker(key);
-               $("#option"+key).remove();
+               $("#range"+key).remove();
             if (dehigh.end.row != mRange.end.row || dehigh.end.column != mRange.end.column) {
               var markRange = new Range(dehigh.end.row, dehigh.end.column, mRange.end.row, mRange.end.column);
               var marker1 = this.addMarker(markRange, marker.clazz);
-              this.$ranges.append(this.printMarker(markers[marker1], marker1));     
+              this.$ranges.append(this.printMarker(markers[marker1], marker1, false));     
             }
             break;
 
           case 2:
                this.aceEditSession.removeMarker(key);
-               $("#option"+key).remove();
+               $("#range"+key).remove();
             if (mRange.start.row!=dehigh.start.row || mRange.start.column != dehigh.start.column) {
               var markRange = new Range(mRange.start.row, mRange.start.column, dehigh.start.row, dehigh.start.column);
               var marker1 = this.addMarker(markRange, marker.clazz);
-              this.$ranges.append(this.printMarker(markers[marker1], marker1));
+              this.$ranges.append(this.printMarker(markers[marker1], marker1, false));
             }
             break;
 
           case 3:
                this.aceEditSession.removeMarker(key);
-               $("#option"+key).remove();
+               $("#range"+key).remove();
           if (mRange.start.row!=dehigh.start.row || mRange.start.column != dehigh.start.column) {
             var markRange1 = new Range(mRange.start.row, mRange.start.column, dehigh.start.row, dehigh.start.column);
             var marker1 = this.addMarker(markRange1, marker.clazz);
-            this.$ranges.append(this.printMarker(markers[marker1], marker1));
+            this.$ranges.append(this.printMarker(markers[marker1], marker1, false));
           }
           if (dehigh.end.row!=mRange.end.row || dehigh.end.column!= mRange.end.column) {
             var markRange2 = new Range(dehigh.end.row, dehigh.end.column, mRange.end.row, mRange.end.column);
             var marker2 = this.addMarker(markRange2, marker.clazz);
-            this.$ranges.append(this.printMarker(markers[marker2], marker2));
+            this.$ranges.append(this.printMarker(markers[marker2], marker2, false));
           }
           break;
         }
@@ -351,12 +380,13 @@ var Highlight = (function(){
     return new Range(resultstart.row, resultstart.column,
                      resultend.row, resultend.column);
   }
+  
+
 
   Highlight.prototype.printMarker = function(marker, id) {
-    var result = "<option id=option" +id+ ">Range (From: [row: " 
-        + marker.range.start.row + ", col: "+ marker.range.start.column 
-        + "], To: [row: " + marker.range.end.row + ", col: " 
-        + marker.range.end.column + "])</option>"
+        
+        var preview = this.aceEditSession.getTextRange(marker.range);        
+        var result = "<li class='collapsed' id=range" +id+ ">" + listElement(marker, preview, false) + "</li>";
     
     return result;
   }

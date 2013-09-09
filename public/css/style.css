@@ -12,6 +12,15 @@ body {
   font-size: 85%;
 }
 
+li.expanded{
+list-style-image:url('img/open.gif');
+}
+
+li.collapsed{
+list-style-image:url('img/close.gif');
+
+}
+
 
 #editor {
   top: 0;
