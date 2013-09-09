@@ -34,14 +34,34 @@ var Highlight = (function(){
   
   var listElement = function(marker, preview, extended) {
      if (preview.length > 20 && !extended) {
-          preview = preview.slice(0,20);
-          preview = preview.concat("...");
+          preview = preview.slice(0,20).concat("...");
      }
-     var result = preview + " - "
-     + marker.range.start.row + ":" + marker.range.start.column
-     + " - " + marker.range.end.row + ":" + marker.range.end.column;
+     var result = preview + '<div class="range-data">'
+     + marker.range.start.row + ':' + marker.range.start.column
+     + ' - ' + marker.range.end.row + ':' + marker.range.end.column + '</div>';
      
      return result;
+  }
+
+  var onToggleList = function($li, self){
+    console.log("target", $li)
+    var markers = self.aceEditSession.getMarkers()
+      , index= parseInt($li.attr("id").slice(5))
+      , marker = markers[index]
+      , preview = self.aceEditSession.getTextRange(marker.range);
+
+      // toggle list
+      $li
+        .toggleClass("collapsed")
+        .toggleClass("expanded")
+        .find("img")
+          .attr("src", $li.hasClass("collapsed") ? "img/close.gif" : "img/open.gif")
+          .end()
+        .find('span')
+          .html(listElement(markers[index],
+                                 preview,
+                                 $li.hasClass("expanded")));
+        
   }
 
   /**
@@ -100,27 +120,18 @@ var Highlight = (function(){
     var onChangeSelection = this.onChangeSelection.bind(this)
     //handle selection events
     this.aceEditSession.selection.on('changeSelection', function (e) {
-     setTimeout(onChangeSelection, 5)
+      setTimeout(onChangeSelection, 5)
     });
     
-    var aceEditor = this.aceEditSession;
-    var markers = aceEditor.getMarkers();
-    
-    $("#rangestext").on("click", ">li", function(){
-          var index = parseInt(event.target.id.slice(5));
-          var marker = markers[index];
-          var preview = aceEditor.getTextRange(marker.range); 
-     if ($("#"+event.target.id).hasClass("collapsed")) {
-         $("#"+event.target.id).html(listElement(markers[index], preview, true));
-     } else {
-          $("#"+event.target.id).html(listElement(markers[index], preview, false));
-     }
-     $("#"+event.target.id).toggleClass("collapsed");
-     $("#"+event.target.id).toggleClass("expanded");
-     
-     
-     
-    });
+  
+    $("#rangestext")
+      .on("click", ">li>a", function(){
+         console.log("click")
+        onToggleList($(event.target).parents("li").eq(0), self);
+    })
+      .on("dblclick", ">li", function(event){
+        onToggleList($(event.target), self);
+      })
   }
 
 
@@ -386,7 +397,13 @@ var Highlight = (function(){
   Highlight.prototype.printMarker = function(marker, id) {
         
         var preview = this.aceEditSession.getTextRange(marker.range);        
-        var result = "<li class='collapsed' id=range" +id+ ">" + listElement(marker, preview, false) + "</li>";
+        var result = '<li class="collapsed" id=range' 
+                      + id
+                      + '> <a ><img src="img/close.gif" alt="Toggle"></a>' 
+                      + '<span>'
+                      + listElement(marker, preview, false) 
+                      + '</span>'
+                      + '</li>';
     
     return result;
   }
@@ -394,12 +411,10 @@ var Highlight = (function(){
   return Highlight;
 })();
 
-  window.onload = function () {
-
-    var myHighlight =  new Highlight({
-      text: "editor",
-      lang: "java",
-    });
-    myHighlight.init();
-   
-  }
+$(function(){
+  var myHighlight =  new Highlight({
+  text: "editor",
+  lang: "java",
+  });
+  myHighlight.init();
+})
