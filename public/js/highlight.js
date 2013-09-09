@@ -51,6 +51,7 @@ var Highlight = (function(){
     this.oldRange = null;
     this.oldstart = null;
     this.lastMarker = null;
+
   }
 
   /**
@@ -157,7 +158,7 @@ var Highlight = (function(){
         if (currentstart.row == this.oldstart.row && currentstart.column == this.oldstart.column) {
          dehigh = this.rangeMinus(this.oldRange, dehigh);
         }
-        var rangeIncludes = this.includes2(marker.range, dehigh);
+        var rangeIncludes = this.includes(marker.range, dehigh);
 
         switch (rangeIncludes){
           case 1:
@@ -212,67 +213,6 @@ var Highlight = (function(){
   */
   Highlight.prototype.includes = function (range1, range2) {
 
-    //range1 is a superset of range2
-    var isSuperSet = range1.start.row <= range2.start.row 
-      && range1.start.column <= range2.start.column
-      && range1.end.row >= range2.end.row 
-      && range1.end.column >= range2.end.column;
-
-    if (isSuperSet) return 3;
-
-    //range1 is disjoint with range2
-    //disjoint case 1
-    var isDisJoint1 = range1.start.row < range2.start.row 
-      && (range1.end.row < range2.start.row 
-          || (range1.end.row == range2.start.row && range1.end.column < range2.start.column )
-          );
-
-    //disjoint case 2
-    var isDisJoint2 = range1.start.row == range2.start.row 
-      && range1.start.column < range2.start.column 
-      && (range1.end.row == range1.start.row && range1.end.column < range2.start.column );
-    
-    //disjoint case 3
-    var isDisJoint3 = range1.start.row == range2.start.row 
-      && range1.start.column > range2.start.column 
-      && (range2.end.row == range2.start.row && range2.end.column < range1.start.column );
-
-    //disjoint case 4
-    var isDisJoint4 = range1.start.row > range2.start.row 
-      && (range1.start.row > range2.end.row 
-          || (range1.start.row == range2.end.row && range1.start.column > range2.end.column )
-          );
-
-    if (isDisJoint1 || isDisJoint2 || isDisJoint3 || isDisJoint4) return 0;
-
-    //range1 starts at the same character as range2
-    var isSameStart = range1.start.row == range2.start.row 
-      && range1.start.column == range2.start.column
-
-    if (isSameStart) return 1; 
-
-    //range1 finishes at the same character as range2
-    var isSameEnd = range1.end.row == range2.end.row 
-      && range1.end.column == range2.end.column 
-
-    if (isSameEnd) return 2;
-
-    //Just overlapping
-    return 4;
-  }
-
-  /**
-  * Checks if ranges 1 includes range 2
-  * @param {Ace.Range} range1
-  * @param {Ace.Range} range2
-  * @returns {Number} <tt>0</tt>: range1 is a superset of range2 
-  * <tt>1</tt>: range1 and range2 start at the same character index 
-  * <tt>2</tt>: range1 and range2 end at the same character index 
-  * <tt>3</tt>: range1 is disjoint form range2
-  * <tt>4</tt>: range1 overlaps with range2 but it's not a superset of it
-  */
-  Highlight.prototype.includes2 = function (range1, range2) {
-
     /* In order to avoid lots of "ifs" we use the following method:
     * We reduce the dimensions of the start end end properties to 1.
     * in order to do that, we assign maxC to be the largerst column + 1.
@@ -308,84 +248,16 @@ var Highlight = (function(){
     //range1 finishes at the same character as range2
     if (r1.end == r2.end) return 2;
 
+    //MARGARITA: check if adjacent
+
+
     //Just overlapping
     return 4;
   }
 
-
-
-Highlight.prototype.includesOld = function (range1, range2) {
-
-     if (range1.start.row < range2.start.row) {
-       if (range1.end.row > range2.end.row) {
-         return 3;
-       } else {
-         if (range1.end.row == range2.end.row) {
-           if (range1.end.column == range2.end.column) {
-             return 2;
-           } else {
-             if (range1.end.column > range2.end.column) {
-               return 3;
-             } else {
-               return 0;
-             }
-           }
-         } else {
-           return 0;
-         }
-       }
-     } else {
-       if (range1.start.row == range2.start.row) {
-         if (range1.start.column < range2.start.column) {
-           if (range1.end.row > range2.end.row) {
-             return 3;
-           } else {
-             if (range1.end.row == range2.end.row) {
-               if (range1.end.column == range2.end.column) {
-                 return 2;
-               } else {
-
-                 if (range1.end.column > range2.end.column) {
-
-                   return 3;
-                 } else {
-                   return 0;
-                 }
-               }
-             } else {
-               return 0;
-             }
-           }
-         } else {
-           if (range1.start.column == range2.start.column) {
-             if (range1.end.row > range2.end.row) {
-               return 1;
-             } else {
-               if (range1.end.row == range2.end.row) {
-                 if (range1.end.column == range2.end.column) {
-                   return 3;
-                 } else {
-                   if (range1.end.column > range2.end.column) {
-                     return 1;
-                   } else {
-                     return 0;
-                   }
-                 }
-               } else {
-                 return 0;
-               }
-             }
-           } else {
-             return 0;
-           }
-
-         }
-       } else {
-         return 0;
-       }
-     }
-   }
-   
+  Highlight.prototype.consolidate = function (range1, range2) {
+    //mark
+  } 
 
 
 
