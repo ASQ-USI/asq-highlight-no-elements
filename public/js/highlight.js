@@ -119,7 +119,6 @@ var Highlight = (function(){
      $("#"+event.target.id).toggleClass("expanded");
      
      
-     
     });
   }
 
