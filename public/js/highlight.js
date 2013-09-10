@@ -55,7 +55,7 @@ var Highlight = (function(){
         .toggleClass("collapsed")
         .toggleClass("expanded")
         .find("img")
-          .attr("src", $li.hasClass("collapsed") ? "img/close.gif" : "img/open.gif")
+          .attr("src", $li.hasClass("collapsed") ? "img/close.png" : "img/open.png")
           .end()
         .find('span')
           .html(listElement(markers[index],
@@ -130,7 +130,7 @@ var Highlight = (function(){
         onToggleList($(event.target).parents("li").eq(0), self);
     })
       .on("dblclick", ">li", function(event){
-        onToggleList($(event.target), self);
+        onToggleList($(event.target).parents("li").eq(0), self);
       })
   }
 
@@ -179,7 +179,6 @@ var Highlight = (function(){
     if (this.oldstart != null) {
          if (currentstart.row == this.oldstart.row && currentstart.column == this.oldstart.column && oldColor == this.selectionColor ) {
               this.aceEditSession.removeMarker(this.lastMarker);
-              console.log("lastMarker: " + this.lastMarker)
               $("#range"+this.lastMarker).remove();
          }
     }
@@ -190,7 +189,6 @@ var Highlight = (function(){
       if (marker.type == "text" && key != 2) {
           
           var rangeAdjacency = this.includes(mRange, markRange);
-          console.log(rangeAdjacency);
           if (rangeAdjacency == 5) {
                start.row = mRange.start.row;
                start.column = mRange.start.column;
@@ -215,7 +213,6 @@ var Highlight = (function(){
           }
       }
     }
-    console.log(markRange);
     if (!adjacent) {
           markRange = new Range(selRange.start.row, selRange.start.column, selRange.end.row, selRange.end.column);
           this.oldstart = this.aceEditSession.selection.getSelectionAnchor();
@@ -399,7 +396,7 @@ var Highlight = (function(){
         var preview = this.aceEditSession.getTextRange(marker.range);        
         var result = '<li class="collapsed" id=range' 
                       + id
-                      + '> <a ><img src="img/close.gif" alt="Toggle"></a>' 
+                      + '> <a ><img src="img/close.png" alt="Toggle"></a>' 
                       + '<span>'
                       + listElement(marker, preview, false) 
                       + '</span>'
