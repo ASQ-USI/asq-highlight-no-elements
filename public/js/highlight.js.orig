@@ -123,6 +123,25 @@ var Highlight = (function(){
       setTimeout(onChangeSelection, 5)
     });
     
+<<<<<<< HEAD
+    var aceEditor = this.aceEditSession;
+    var markers = aceEditor.getMarkers();
+    
+    $("#rangestext").on("click", ">li", function(){
+          var index = parseInt(event.target.id.slice(5));
+          var marker = markers[index];
+          var preview = aceEditor.getTextRange(marker.range); 
+     if ($("#"+event.target.id).hasClass("collapsed")) {
+         $("#"+event.target.id).html(listElement(markers[index], preview, true));
+     } else {
+          $("#"+event.target.id).html(listElement(markers[index], preview, false));
+     }
+     $("#"+event.target.id).toggleClass("collapsed");
+     $("#"+event.target.id).toggleClass("expanded");
+     
+     
+    });
+=======
   
     $("#rangestext")
       .on("click", ">li>a", function(){
@@ -132,6 +151,7 @@ var Highlight = (function(){
       .on("dblclick", ">li", function(event){
         onToggleList($(event.target), self);
       })
+>>>>>>> b97a84fe32b982eb72a08a8f380bc50fdb34b15f
   }
 
 
