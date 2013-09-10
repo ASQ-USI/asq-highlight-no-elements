@@ -130,7 +130,12 @@ var Highlight = (function(){
         onToggleList($(event.target).parents("li").eq(0), self);
     })
       .on("dblclick", ">li", function(event){
-        onToggleList($(event.target).parents("li").eq(0), self);
+          if ($(event.target)[0].tagName == 'LI') {
+               onToggleList($(event.target), self);
+          } else {
+               onToggleList($(event.target).parents("li").eq(0), self);
+          }
+          
       })
   }
 
