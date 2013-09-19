@@ -59,8 +59,8 @@ var Highlight = (function(){
           .end()
         .find('span')
           .html(listElement(markers[index],
-                                 preview,
-                                 $li.hasClass("expanded")));
+                            preview,
+                            $li.hasClass("expanded")));
         
   }
 
@@ -112,7 +112,6 @@ var Highlight = (function(){
     ///setup ace editor
     var aceeditor = ace.edit(this.settings.text);
     aceeditor.setReadOnly(true);
-
     this.aceEditSession = aceeditor.getSession()
     this.aceEditSession.setMode("ace/mode/"+this.settings.lang.toLowerCase());
 
