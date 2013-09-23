@@ -1,0 +1,2 @@
+// rangeListItem.dust
+(function(){dust.register("rangeListItem",body_0);function body_0(chk,ctx){return chk.write("<li class=\"collapsed list-group-item\" id=\"range-").reference(ctx.get("id"),ctx,"h").write("\"> <a ><img src=\"img/close.png\" alt=\"Toggle\"></a><span>listElement(marker, preview, false) </span></li>;");}return body_0;})();

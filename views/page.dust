@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+  <meta name="title" content=""/>
+  <meta name="author" content=""/>
+  <meta name="description" content=""/>
+  <meta name="keywords" content=""/>
+
+  <!-- Bootstrap -->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+   <link href="vendor/bootstrap-select/bootstrap-select.min.css" rel="stylesheet" media="screen">
+  <link rel="stylesheet" type="text/css" href="css/style.css" />
+  <link rel='stylesheet' href='vendor/spectrum/spectrum.css' />
+  <link rel="stylesheet" type="text/css" href="vendor/prism/prism.css" />
+  <link rel="stylesheet" type="text/css" href="css/highlight.css" />
+  
+</head>
+<body>
+  <div class="container">
+    <h1 class="title"></h1>
+    <center>
+      <h1>Highlight Editor</h1>
+    </center>
+    <div class="he-editor clearfix" id="he-editor-1">
+
+      <div class="row">
+        <p class="col-xs-12">To create a highlight exercise fill in the stem&hellip; :
+        </p>
+        <div class="col-sm-12 col-md-7">
+          <div class="he-stem input-group">
+            <span class="input-group-addon">Stem</span>
+            <div contenteditable class="form-control he-placeholder" data-placeholder="Question stem (HTML is supported)"></div>
+          </div>
+        </div>
+      </div>
+      <p class="col-xs-12">&hellip; and add some highlighting tasks:</p>
+
+      <div class="he-color-tasks"></div>
+
+      <div class="row">
+        <div class="col-sm-12 col-md-7 he-task-creator">
+            <div class="input-group">
+              <span class="input-group-addon he-task-color" data-color="#d9534f">&nbsp;</span>
+              <div contenteditable class="form-control he-task-description he-placeholder" data-placeholder="Task description (HTML is supported)"></div>
+              <span class="input-group-btn">
+                <button class="btn btn-success he-task-add-btn" type="button">
+                  <span class="glyphicon glyphicon-plus"></span></button>
+              </span>
+            </div><!-- /input-group -->
+         
+        </div><!-- /.col-md-7 -->
+      </div><!-- /.row -->
+      <br />
+
+      <section class="he-toolbar row">
+        <form class="form-inline" id="he-form-1" role="form">
+          <div class="form-group">
+            <label class="sr-only" for="he-form-1-colorpicker">Selection color</label>
+            <input type="color" class="form-control he-colorpicker" value="#d9534f"data-toggle="tooltip" data-original-title="Selection Color"/>
+          </div>
+
+          <button type="button" class="btn btn-default he-eraser" data-toggle="tooltip" data-original-title="Eraser">
+            <img src="img/eraser.png" width="18px" alt="eraser"></button>
+
+          <div class="form-group he-syntax-modes">
+            <label class="sr-only" for="exampleInputPassword2">Password</label>
+            <input type="password" class="form-control" id="exampleInputPassword2" placeholder="Password">
+          </div>
+
+          <div class="btn-group pull-right">
+          <button type="button" class="btn btn-warning" href="">
+             <span class="glyphicon glyphicon-save"></span> Ranges
+          </button>
+            <button type="button" class="btn btn-warning" href="">
+             <span class="glyphicon glyphicon-save"></span> # Occurences 
+          </button>
+          </div>
+          
+        </form>
+
+      </section> <!-- End of section.he-toolbar -->
+      
+      <div class="row">
+        <div id="editor" class="col-xs-12 col-sm-7 zero-padding">public class C {      
+  public void m() {
+    int i = i + 5 + ((int)5.0) + ((int)5f);
+  }
+}</div>
+      <div class="he-inspector col-xs-12 col-sm-5 zero-padding clearfix">
+        <ul id="rangestext" class="list-group">
+          <li class="collapsed list-group-item" id="range17">
+          <span class="color-stripe"></span>
+           <a><img src="img/close.png" alt="Toggle"></a><span>ss C {
+
+            ...<div class="range-data">0:10 - 4:5</div></span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row">
+      <h3>Question Microformat:</h3>
+<pre class="col-xs-12 col-sm-9 zero-padding"><code class="language-markup">&lt;article id=&quot;ex-1&quot; class=&quot;asq-assessment asq-highlight&quot; 
+data-asq-answer-categories=&quot;variables, if-statements, while loops,&quot; 
+data-asq-assessment=&quot;auto|manual&quot;
+data-asq-lang-syntax=&quot;text&quot;|&quot;Java&quot;|&quot;Javascript&quot;|&quot;HTML&quot;
+data-asq-solution-type=&quot;range | occurence&quot;
+data-asq-solution-src=&quot;/solutions/ex1.json&quot;
+data-asq-solution=&quot;{start: {row:0, col:0}, end  {row:0, col:10}}, {start: {row:2, col:56}, end  {row:2, col:63}}&quot; | &quot;{string: 'var', numberOfOccurences: 15},{{string: 'if(', numberOfOccurences: 15}}&quot;
+&gt; hello&lt;/article&gt;
+</code></pre>
+       </div>
+
+    </div>
+  </div>
+
+  <script src="vendor/ace/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+  <script src="vendor/jquery/jquery.js"></script>
+  <script src='vendor/spectrum/spectrum.js'></script>
+  <script src='vendor/prism/prism.js'></script>
+  <script src="vendor/bootstrap/js/bootstrap.min.js"></script>  
+  <script src="vendor/bootstrap-select/bootstrap-select.min.js"></script>  
+  <script src="vendor/dust/dust-core-2.0.3.js"></script>
+  <script src="templates/modes.js" ></script>
+  <script src="templates/colorTaskItem.js" ></script> 
+  <script src="templates/rangeListItem.js" ></script>
+  <script src="js/html-editable.js"></script>  
+  <script src="js/highlight.js"></script>
+  <script src="js/highlight-editor.js"></script>
+</body>
+</html>

@@ -3,23 +3,15 @@
     z-index: 4;
 }
 
-.hexff0000 {
-background-color: red !important;
-}
-
-.hex0000ff {
-background-color: blue !important;
-}
-
-.hex00ff00 {
-background-color: green !important;
-}
-
-.hexffffff {
-background-color: white;
-}
-
-
-
-
-
+.bootstrapred { background-color: #d9534f;}
+.blue { background-color: #428bca;}
+.green { background-color: #5cb85c;}
+.orange { background-color: #f0ad4e;}
+.darkred { background-color: #8b0000;}
+.gold { background-color: #ffd700;}
+.darkkhaki { background-color: #bdb76b;}
+.navy { background-color: #000080;}
+.mediumorchid { background-color: #ba55d3;}
+.lightgreen { background-color: #90ee90;}
+.magenta { background-color: #ff00ff;}
+.red { background-color: #ff0100;}

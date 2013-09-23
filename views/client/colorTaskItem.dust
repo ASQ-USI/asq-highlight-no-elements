@@ -1,0 +1,8 @@
+<div class="row he-task" id="{htmlId}">
+  <div class="col-sm-12 col-md-7">
+      <div class="input-group">
+        <span class="input-group-addon he-task-color" data-color="{color}">&nbsp;</span>
+        <div contenteditable class="form-control" data-placeholder="Task description (HTML is supported)">{description}</div>
+      </div><!-- /input-group -->
+  </div><!-- /.col-sm-12 .col-md-7 -->
+</div><!-- /.row -->

@@ -1,13 +1,19 @@
 {
-    "name" : "Challenge",
-    "version" : "0.0.1",
-    "dependencies" : {
-        "express" : "3.x",
-	"ejs" : "0.8.x",
-	"mongoose" : "3.4.x"
-    },
-    "engines" : {
-        "node" : "0.8.x",
-        "npm" : "1.1.X"
-    }
+  "name": "Challenge",
+  "version": "0.0.1",
+  "dependencies": {
+    "express": "3.x",
+    "ejs": "0.8.x",
+    "mongoose": "3.4.x",
+    "dustjs-linkedin": "~2.0.3",
+    "consolidate": "~0.9.1"
+  },
+  "engines": {
+    "node": "0.8.x",
+    "npm": "1.1.X"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-watch": "~0.5.3"
+  }
 }

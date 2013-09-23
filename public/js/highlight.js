@@ -15,7 +15,18 @@ var Highlight = (function(){
 
   var Range = ace.require('ace/range').Range;
 
-  var minimum = function (pos1, pos2) {
+  function getSpectrumPalette(colors){
+      var result = []
+        , size = 4
+        , bigAr=$.map(colors, function(k, v) {return [v];})
+
+      for (var i=0; i<bigAr.length; i+=size) {
+          result.push(bigAr.slice(i,i+size));
+      }
+      return result;
+    }
+
+  function minimum (pos1, pos2) {
     if (pos1.row == pos2.row){
       return pos1.column <= pos2.column ? pos1 : pos2;
     }
@@ -23,7 +34,7 @@ var Highlight = (function(){
     return pos1.row < pos2.row ? pos1 : pos2;
   }
 
-  var maximum = function (pos1, pos2) {
+  function maximum (pos1, pos2) {
 
     if (pos1.row == pos2.row){
       return pos1.column >= pos2.column ? pos1 : pos2;
@@ -32,7 +43,7 @@ var Highlight = (function(){
     return pos1.row > pos2.row ? pos1 : pos2;
   }
   
-  var listElement = function(marker, preview, extended) {
+  function listElement(marker, preview, extended) {
      if (preview.length > 20 && !extended) {
           preview = preview.slice(0,20).concat("...");
      }
@@ -43,7 +54,7 @@ var Highlight = (function(){
      return result;
   }
 
-  var onToggleList = function($li, self){
+  function onToggleList($li, self){
     console.log("target", $li)
     var markers = self.aceEditSession.getMarkers()
       , index= parseInt($li.attr("id").slice(5))
@@ -76,10 +87,50 @@ var Highlight = (function(){
       text: "editor",
       lang: "javascript",
     };
+    this.MODE_HIGHLIGHT = "modeHighlight";
+    this.MODE_ERASE = "modeErase";
+    this.highlightMode = this.MODE_HIGHLIGHT;
+
+    this.syntaxModes = [
+      {file: "coffee"    , name : "CoffeeScript"},
+      {file: "c_cpp"     , name : "C/C++"},
+      {file: "css"       , name : "CSS"},
+      {file: "html"      , name : "HTML"},
+      {file: "jade"      , name : "Jade"},
+      {file: "java"      , name : "Java"},
+      {file: "javascript", name : "Javascript"},
+      {file: "json"      , name : "JSON"},
+      {file: "less"      , name : "LESS"},
+      {file: "php"       , name : "PHP"},
+      {file: "python"    , name : "Python"},
+      {file: "ruby"      , name : "Ruby"},
+      {file: "sass"      , name : "SASS"},
+      {file: "scss"      , name : "SCSS"},
+      {file: "sql"       , name : "SQL"},
+      {file: "xml"       , name : "XML"},
+      {file: "yaml"      , name : "YAML"}
+    ];
+
+    this.colors={
+      "d9534f" :"bootstrapred",
+      "428bca" : "blue",
+      "5cb85c" : "green",
+      "f0ad4e" : "orange",
+      "8b0000" : "darkred",
+      "ffd700" : "gold",
+      "bdb76b" : "darkkhaki",
+      "000080" : "navy",
+      "ba55d3" : "mediumorchid",
+      "90ee90" : "lightgreen",
+      "ff00ff" : "magenta",
+      "ff0000" : "red"
+    }
+
     this.settings = $.extend({}, this.defaultOptions, options)
     this.$ranges = null;
+    this.aceEditor = null;
     this.aceEditSession=null;
-    this.selectionColor = "hexff0000";
+    this.selectionColor = "bootstrapred";
     this.oldRange = null;
     this.oldstart = null;
     this.lastMarker = null;
@@ -96,48 +147,94 @@ var Highlight = (function(){
     var self=this;
     this.$ranges = $("#rangestext");
 
-    //setup Color picker plugin
-    $('.simple_color').simpleColor({
-     cellWidth: 20,
-     boxWidth: 20,
-     border: '1px solid #000',
-     cellHeight: 20,
-     columns: 4,
-     colors: ["ff0000", "0000ff", "00ff00", "ffffff"],
-     onSelect: function (hex) {
-       self.selectionColor = "hex" + hex;
-     }
-    });
+    var spectrumPallete = getSpectrumPalette(this.colors);
 
-    ///setup ace editor
-    var aceeditor = ace.edit(this.settings.text);
-    aceeditor.setReadOnly(true);
-    this.aceEditSession = aceeditor.getSession()
-    this.aceEditSession.setMode("ace/mode/"+this.settings.lang.toLowerCase());
+    $(".he-colorpicker").spectrum({
+      showPaletteOnly: true,
+      showPalette:true,
+      palette: spectrumPallete,
+      show: function(color) {
+        $(".he-eraser")
+          .removeClass("active")
+          .removeAttr("disabled");
 
-    //bind the 'this' keyword to the this.onChangeSelection function
-    var onChangeSelection = this.onChangeSelection.bind(this)
-    //handle selection events
-    this.aceEditSession.selection.on('changeSelection', function (e) {
-      setTimeout(onChangeSelection, 5)
-    });
-    
+        self.highlightMode = self.MODE_HIGHLIGHT;
+      },
+      change: function(color) {
+        $(".he-eraser")
+          .removeClass("active")
+          .removeAttr("disabled");
+
+        self.highlightMode = self.MODE_HIGHLIGHT;
+        self.selectionColor = self.colors[color.toHex()];
+      }
+    });    
   
-    $("#rangestext")
-      .on("click", ">li>a", function(){
-         console.log("click")
-        onToggleList($(event.target).parents("li").eq(0), self);
-    })
-      .on("dblclick", ">li", function(event){
-          if ($(event.target)[0].tagName == 'LI') {
-               onToggleList($(event.target), self);
-          } else {
-               onToggleList($(event.target).parents("li").eq(0), self);
-          }
-          
-      })
-  }
+  ///setup ace editor
+  this.aceEditor = ace.edit(this.settings.text);
+  //aceEditor.setReadOnly(true);
+  this.aceEditSession = this.aceEditor.getSession()
+  this.aceEditSession.setMode("ace/mode/"+this.settings.lang.toLowerCase());
 
+  //to see the highlight color as fast as possible
+  //clear selection on mouseup
+  this.aceEditor.on("mouseup", function(){
+    //self.aceEditSession.selection.clearSelection();
+  })
+
+  //bind the 'this' keyword to the this.onChangeSelection function
+  var onChangeSelection = this.onChangeSelection.bind(this)
+  //handle selection events
+  this.aceEditSession.selection.on('changeSelection', function (e) {
+    setTimeout(onChangeSelection, 5)
+  });
+    
+    var modesObj = {
+      syntaxModes:this.syntaxModes,
+      currentMode:self.settings.lang.toLowerCase()
+    }
+
+    dust.render("modes", modesObj, function(err,out){
+      if(err)console.log(err)
+      $(".he-syntax-modes").html(out);
+    })
+
+
+  $("#rangestext")
+    .on("click", ">li>a", function(){
+       console.log("click")
+      onToggleList($(event.target).parents("li").eq(0), self);
+    })
+    .on("dblclick", ">li", function(event){
+      if ($(event.target)[0].tagName == 'LI') {
+           onToggleList($(event.target), self);
+      } else {
+           onToggleList($(event.target).parents("li").eq(0), self);
+      }          
+    });
+
+  $('select').selectpicker();
+
+  $("#langSelect").on("change.he.lang", function(event){
+    var syntaxMode = $(this).find(":selected").val();
+     self.aceEditSession.setMode("ace/mode/"+syntaxMode);
+
+  })
+
+  $(".he-eraser").on("click.he.eraser", function(event){
+    self.highlightMode = self.MODE_ERASE;
+    $(this)
+      .addClass('active')
+      .attr("disabled", "disabled")
+  })
+
+  //init tooltip
+   $('.he-toolbar').tooltip({
+      selector: "[data-toggle=tooltip]",
+      placement: "bottom",
+      delay: { show: 1000, hide: 0 }
+    })
+  }
 
   /**
   * Adds a new Marker to the aceEditSession
@@ -154,8 +251,8 @@ var Highlight = (function(){
   */
   Highlight.prototype.onChangeSelection = function() {
    if (this.aceEditSession.selection.isEmpty()) return;
-
-   this.selectionColor == "hexffffff" ?  this.eraseChange() : this.highlightChange()
+   console.log(this.highlightMode)
+   this.highlightMode == this.MODE_HIGHLIGHT ?   this.highlightChange() : this.eraseChange();
    console.log(this.aceEditSession.getMarkers());
   }
 
@@ -234,11 +331,9 @@ var Highlight = (function(){
           this.$ranges.append(this.printMarker(markers[marker1], marker1, false));
           this.oldstart = this.aceEditSession.selection.getSelectionAnchor();
           this.oldRange = markRange;
-     
-     
     }
+      //this.aceEditSession.selection.clearSelection()
   }
-
 
   /**
   * Erases Markers
@@ -296,8 +391,6 @@ var Highlight = (function(){
           }
           break;
         }
-        
-      
       }
     }
 
@@ -393,12 +486,10 @@ var Highlight = (function(){
                      resultend.row, resultend.column);
   }
   
-
-
   Highlight.prototype.printMarker = function(marker, id) {
         
         var preview = this.aceEditSession.getTextRange(marker.range);        
-        var result = '<li class="collapsed" id=range' 
+        var result = '<li class="collapsed list-group-item" id=range' 
                       + id
                       + '> <a ><img src="img/close.png" alt="Toggle"></a>' 
                       + '<span>'
@@ -408,14 +499,7 @@ var Highlight = (function(){
     
     return result;
   }
-
+    
   return Highlight;
 })();
 
-$(function(){
-  var myHighlight =  new Highlight({
-  text: "editor",
-  lang: "java",
-  });
-  myHighlight.init();
-})
