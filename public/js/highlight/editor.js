@@ -23,7 +23,7 @@ var HighlightEditor = (function(){
    * @this {HighlightEditor}
    * @param {Object} options Options for the editor.
    */
-  var HighlightEditor = function(options){
+  var Editor = function(options){
     this.colorPalette = {
       "d9534f" :"bootstrapred",
       "428bca" : "blue",
@@ -38,8 +38,12 @@ var HighlightEditor = (function(){
       "ff00ff" : "magenta",
       "ff0000" : "red"
     }
-    this.spectrumPallete = getSpectrumPalette(this.colorPalette);
+    this.spectrumPalette = getSpectrumPalette(this.colorPalette);
+    this.activePalette = {};
+    this.defaultColor = "#f0ad4e"
     this.taskCounter = 0;
+    this.highlight =  new Highlight(options.highlight);
+
 
     //DOM 
     this.rootId = options.hEditorId;
@@ -55,6 +59,9 @@ var HighlightEditor = (function(){
       descEditable: null //will instantiate in init
     }
     //this.$addColorTask = this.$root.find(".he-task-creator")
+
+    //tasks
+    this.tasks={};
   };
 
   //Prototype methods
@@ -63,6 +70,8 @@ var HighlightEditor = (function(){
   (function(){
 
     this.init = function(){
+
+      this.highlight.init();
 
       var self=this
         , tc=this.taskCreator;
@@ -91,8 +100,32 @@ var HighlightEditor = (function(){
           tc.$desc
             .html("")
             .addClass("he-placeholder");
+
+          
+
+          tc.$color
+            .attr("data-color", self.defaultColor)
+            .css("background-color", self.defaultColor);            
+
           self.$colorTasks.append(out);
-          self.addColorPicker($("#"+newId + " .he-task-color"));
+
+          self.tasks[newId] = new HighlightTask({
+            $el: $("#"+newId),
+            spectrumPalette : self.spectrumPalette,
+            onColorChanged :  function(prevColor , newColor){
+              var ap = self.activePalette;
+
+              if(ap.hasOwnProperty(prevColor)) delete ap[prevColor];
+              if(!ap.hasOwnProperty(newColor)) ap[newColor] = self.colorPalette[newColor];
+              
+              self.highlight.setColorPalette(ap)
+            },
+
+            onRemoveClicked :  function(){
+              self.tasks[newId].destroy();
+              delete self.tasks[newId];
+            }
+          });
         })
       })
     }
@@ -104,7 +137,7 @@ var HighlightEditor = (function(){
         .spectrum({
           showPaletteOnly: true,
           showPalette:true,
-          palette: self.spectrumPallete,
+          palette: self.spectrumPalette,
           change: function(color) {
             var hexColor = color.toHexString();
             $(this)
@@ -115,20 +148,19 @@ var HighlightEditor = (function(){
     }
 
 
-  }).call(HighlightEditor.prototype)
+  }).call(Editor.prototype)
 
-  return HighlightEditor;
+  return Editor;
 })();
 
 $(function(){
-  var myHighlight =  new Highlight({
-  text: "editor",
-  lang: "java",
-  });
-  myHighlight.init();
 
   var hEditor = new HighlightEditor({
-    hEditorId : "he-editor-1"
+    hEditorId : "he-editor-1",
+    highlight: {
+      text: "editor",
+      lang : "java"
+    }
   })
 
   hEditor.init();

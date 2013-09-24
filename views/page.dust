@@ -35,21 +35,20 @@
           </div>
         </div>
       </div>
-      <p class="col-xs-12">&hellip; and add some highlighting tasks:</p>
-
+     <br />
       <div class="he-color-tasks"></div>
-
+      <hr>
+      <p class="col-xs-12">&hellip; and add some highlighting tasks:</p>
       <div class="row">
         <div class="col-sm-12 col-md-7 he-task-creator">
             <div class="input-group">
-              <span class="input-group-addon he-task-color" data-color="#d9534f">&nbsp;</span>
+              <span class="input-group-addon he-task-color" data-color="#f0ad4e">&nbsp;</span>
               <div contenteditable class="form-control he-task-description he-placeholder" data-placeholder="Task description (HTML is supported)"></div>
               <span class="input-group-btn">
                 <button class="btn btn-success he-task-add-btn" type="button">
                   <span class="glyphicon glyphicon-plus"></span></button>
               </span>
-            </div><!-- /input-group -->
-         
+            </div><!-- /input-group -->       
         </div><!-- /.col-md-7 -->
       </div><!-- /.row -->
       <br />
@@ -58,7 +57,7 @@
         <form class="form-inline" id="he-form-1" role="form">
           <div class="form-group">
             <label class="sr-only" for="he-form-1-colorpicker">Selection color</label>
-            <input type="color" class="form-control he-colorpicker" value="#d9534f"data-toggle="tooltip" data-original-title="Selection Color"/>
+            <input type="color" class="form-control he-colorpicker" data-toggle="tooltip" data-original-title="Selection Color"/>
           </div>
 
           <button type="button" class="btn btn-default he-eraser" data-toggle="tooltip" data-original-title="Eraser">
@@ -67,6 +66,17 @@
           <div class="form-group he-syntax-modes">
             <label class="sr-only" for="exampleInputPassword2">Password</label>
             <input type="password" class="form-control" id="exampleInputPassword2" placeholder="Password">
+          </div>
+
+          <div class="btn-group" data-toggle="buttons">
+            <label class="btn btn-default he-edit-label">
+              <input type="radio" name="options" id="option2">
+              <span class="glyphicon glyphicon-pencil"></span> Edit 
+            </label>
+            <label class="btn btn-default he-highlight-label">
+              <input type="radio" name="options" id="option1">
+                <span class="glyphicon glyphicon-play"></span> Highlight
+            </label>
           </div>
 
           <div class="btn-group pull-right">
@@ -125,8 +135,8 @@ data-asq-solution=&quot;{start: {row:0, col:0}, end  {row:0, col:10}}, {start: {
   <script src="templates/modes.js" ></script>
   <script src="templates/colorTaskItem.js" ></script> 
   <script src="templates/rangeListItem.js" ></script>
-  <script src="js/html-editable.js"></script>  
-  <script src="js/highlight.js"></script>
-  <script src="js/highlight-editor.js"></script>
+  <script src="js/highlight/task.js"></script>  
+  <script src="js/highlight/highlight.js"></script>
+  <script src="js/highlight/editor.js"></script>
 </body>
 </html>

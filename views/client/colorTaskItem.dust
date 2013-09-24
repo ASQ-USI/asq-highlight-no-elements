@@ -3,6 +3,10 @@
       <div class="input-group">
         <span class="input-group-addon he-task-color" data-color="{color}">&nbsp;</span>
         <div contenteditable class="form-control" data-placeholder="Task description (HTML is supported)">{description}</div>
+        <span class="input-group-btn">
+          <button class="btn btn-danger he-task-remove-btn" type="button">
+            <span class="glyphicon glyphicon-minus"></span></button>
+        </span>
       </div><!-- /input-group -->
   </div><!-- /.col-sm-12 .col-md-7 -->
 </div><!-- /.row -->
