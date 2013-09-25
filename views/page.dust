@@ -29,7 +29,7 @@
         <p class="col-xs-12">To create a highlight exercise fill in the stem&hellip; :
         </p>
         <div class="col-sm-12 col-md-7">
-          <div class="he-stem input-group">
+          <div class="he-stem input-group input-group-sm">
             <span class="input-group-addon">Stem</span>
             <div contenteditable class="form-control he-placeholder" data-placeholder="Question stem (HTML is supported)"></div>
           </div>
@@ -41,8 +41,8 @@
       <p class="col-xs-12">&hellip; and add some highlighting tasks:</p>
       <div class="row">
         <div class="col-sm-12 col-md-7 he-task-creator">
-            <div class="input-group">
-              <span class="input-group-addon he-task-color" data-color="#f0ad4e">&nbsp;</span>
+            <div class="input-group input-group-sm">
+              <span class="input-group-addon he-task-color" data-color="f0ad4e">&nbsp;</span>
               <div contenteditable class="form-control he-task-description he-placeholder" data-placeholder="Task description (HTML is supported)"></div>
               <span class="input-group-btn">
                 <button class="btn btn-success he-task-add-btn" type="button">
@@ -68,12 +68,12 @@
             <input type="password" class="form-control" id="exampleInputPassword2" placeholder="Password">
           </div>
 
-          <div class="btn-group" data-toggle="buttons">
+          <div class="btn-group he-mode" data-toggle="buttons">
             <label class="btn btn-default he-edit-label">
               <input type="radio" name="options" id="option2">
               <span class="glyphicon glyphicon-pencil"></span> Edit 
             </label>
-            <label class="btn btn-default he-highlight-label">
+            <label class="btn btn-default he-highlight-label active">
               <input type="radio" name="options" id="option1">
                 <span class="glyphicon glyphicon-play"></span> Highlight
             </label>
@@ -101,26 +101,22 @@
       <div class="he-inspector col-xs-12 col-sm-5 zero-padding clearfix">
         <ul id="rangestext" class="list-group">
           <li class="collapsed list-group-item" id="range17">
-          <span class="color-stripe"></span>
-           <a><img src="img/close.png" alt="Toggle"></a><span>ss C {
-
-            ...<div class="range-data">0:10 - 4:5</div></span></li>
-          </ul>
-        </div>
+            <span class="label label-default bootstrapred">&nbsp;</span>
+             <a><img src="img/close.png" alt="Toggle"></a>
+            <code class="he-highlighted-text">ss C {
+            &hellip;</code>
+            <span class="badge">0:10 - 4:5</span>
+          </li>
+        </ul>
       </div>
+    </div>
 
       <div class="row">
-      <h3>Question Microformat:</h3>
-<pre class="col-xs-12 col-sm-9 zero-padding"><code class="language-markup">&lt;article id=&quot;ex-1&quot; class=&quot;asq-assessment asq-highlight&quot; 
-data-asq-answer-categories=&quot;variables, if-statements, while loops,&quot; 
-data-asq-assessment=&quot;auto|manual&quot;
-data-asq-lang-syntax=&quot;text&quot;|&quot;Java&quot;|&quot;Javascript&quot;|&quot;HTML&quot;
-data-asq-solution-type=&quot;range | occurence&quot;
-data-asq-solution-src=&quot;/solutions/ex1.json&quot;
-data-asq-solution=&quot;{start: {row:0, col:0}, end  {row:0, col:10}}, {start: {row:2, col:56}, end  {row:2, col:63}}&quot; | &quot;{string: 'var', numberOfOccurences: 15},{{string: 'if(', numberOfOccurences: 15}}&quot;
-&gt; hello&lt;/article&gt;
-</code></pre>
-       </div>
+        <div class="col-xs-12 col-sm-9 zero-padding">
+          <h3>Question Microformat:</h3>
+          <pre><code class="language-markup he-microformat"></code></pre>
+        </div>
+      </div>
 
     </div>
   </div>
@@ -132,9 +128,10 @@ data-asq-solution=&quot;{start: {row:0, col:0}, end  {row:0, col:10}}, {start: {
   <script src="vendor/bootstrap/js/bootstrap.min.js"></script>  
   <script src="vendor/bootstrap-select/bootstrap-select.min.js"></script>  
   <script src="vendor/dust/dust-core-2.0.3.js"></script>
-  <script src="templates/modes.js" ></script>
+  <script src="templates/syntaxModes.js" ></script>
   <script src="templates/colorTaskItem.js" ></script> 
   <script src="templates/rangeListItem.js" ></script>
+  <script src="templates/highlightMf.js" ></script>
   <script src="js/highlight/task.js"></script>  
   <script src="js/highlight/highlight.js"></script>
   <script src="js/highlight/editor.js"></script>

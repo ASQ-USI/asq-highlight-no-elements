@@ -18,7 +18,7 @@ var Highlight = (function(){
   function getSpectrumPalette(colors){
       var result = []
         , size = 4
-        , bigAr=$.map(colors, function(k, v) {return [v];})
+        , bigAr=$.map(colors, function(v, k) {return [k];})
 
       for (var i=0; i<bigAr.length; i+=size) {
           result.push(bigAr.slice(i,i+size));
@@ -45,7 +45,7 @@ var Highlight = (function(){
   
   function listElement(marker, preview, extended) {
      if (preview.length > 20 && !extended) {
-          preview = preview.slice(0,20).concat("...");
+          preview = preview.slice(0,20).concat("&hellip;");
      }
      var result = preview + '<div class="range-data">'
      + marker.range.start.row + ':' + marker.range.start.column
@@ -87,11 +87,18 @@ var Highlight = (function(){
       text: "editor",
       lang: "javascript",
     };
-    this.MODE_HIGHLIGHT = "modeHighlight";
-    this.MODE_ERASE = "modeErase";
-    this.MODE_EDIT_TEXT = "modeErase";
 
-    this.mode = this.MODE_HIGHLIGHT;
+    // editor
+    this.MODE_HIGHLIGHT = "modeHighlight";
+    this.MODE_EDIT_TEXT = "modeEditText";
+
+    this.mode = "";
+
+    //highlight modes
+    this.HIGHLIGHT_COLOR = "highlightColor";
+    this.HIGHLIGHT_ERASE = "highlightErase";
+
+    this.highlightMode = this.HIGHLIGHT_COLOR;
 
     this.syntaxModes = [
       {file: "coffee"    , name : "CoffeeScript"},
@@ -113,13 +120,17 @@ var Highlight = (function(){
       {file: "yaml"      , name : "YAML"}
     ];
 
-    this.colors={}
+    this.colors={
+      // "d9534f" :"bootstrapred",
+      // "428bca" : "blue",
+      // "5cb85c" : "green"
+    }
 
     this.settings = $.extend({}, this.defaultOptions, options)
     this.$ranges = null;
     this.aceEditor = null;
     this.aceEditSession=null;
-    this.selectionColor = "bootstrapred";
+    this.selectionColor = "";
     this.oldRange = null;
     this.oldstart = null;
     this.lastMarker = null;
@@ -138,43 +149,64 @@ var Highlight = (function(){
     this.init = function(){
 
       var self=this;
-      this.$ranges = $("#rangestext");
-
-      this.initColorpicker(); 
-    
-    ///setup ace editor
-    this.aceEditor = ace.edit(this.settings.text);
-    //aceEditor.setReadOnly(true);
-    this.aceEditSession = this.aceEditor.getSession()
-    this.aceEditSession.setMode("ace/mode/"+this.settings.lang.toLowerCase());
-
-    //to see the highlight color as fast as possible
-    //clear selection on mouseup
-    this.aceEditor.on("mouseup", function(){
-      //self.aceEditSession.selection.clearSelection();
-    })
-
-    //bind the 'this' keyword to the this.onChangeSelection function
-    var onChangeSelection = this.onChangeSelection.bind(this)
-    //handle selection events
-    this.aceEditSession.selection.on('changeSelection', function (e) {
-      setTimeout(onChangeSelection, 5)
-    });
+      this.clearSelectionBinded = this.clearSelection.bind(this);
+      this.onChangeSelectionBinded = this.onChangeSelection.bind(this);
       
+      ///setup ace editor
+      this.aceEditor = ace.edit(this.settings.text);
+      this.aceEditSession = this.aceEditor.getSession()
+      this.aceEditSession.setMode("ace/mode/"+this.settings.lang.toLowerCase());
+
+      this.setMode(this.MODE_HIGHLIGHT);
+      this.initColorpicker();
+
+      this.$ranges = $("#rangestext");
+      
+      //syntax dropdoown
       var modesObj = {
         syntaxModes:this.syntaxModes,
         currentMode:self.settings.lang.toLowerCase()
       }
-
-      dust.render("modes", modesObj, function(err,out){
+      dust.render("syntaxModes", modesObj, function(err,out){
         if(err)console.log(err)
         $(".he-syntax-modes").html(out);
       })
 
+      $('#syntaxSelect')
+        .selectpicker()
+        .on("change.he.syntax", function(event){
+          var syntaxMode = $(this).find(":selected").val();
+          self.aceEditSession.setMode("ace/mode/"+syntaxMode);
+        });  
 
+      //eraser button
+      $(".he-eraser").on("click.he.eraser", function(event){
+        self.mode = self.MODE_ERASE;
+        $(this)
+          .addClass('active')
+          .attr("disabled", "disabled")
+      })
+
+      //mode buttons
+      $('.he-mode').on("click.he.mode", "label", function(){
+        var newMode = $(this).hasClass("he-edit-label") ?
+                        self.MODE_EDIT_TEXT :  self.MODE_HIGHLIGHT;
+
+        if(self.mode === newMode) return;
+        self.setMode(newMode)
+      })
+
+    //init tooltip
+     $('.he-toolbar').tooltip({
+        selector: "[data-toggle=tooltip]",
+        placement: "bottom",
+        delay: { show: 1000, hide: 0 }
+      })
+
+    //ranges text
     $("#rangestext")
       .on("click", ">li>a", function(){
-         console.log("click")
+         //console.log("click")
         onToggleList($(event.target).parents("li").eq(0), self);
       })
       .on("dblclick", ">li", function(event){
@@ -184,45 +216,27 @@ var Highlight = (function(){
              onToggleList($(event.target).parents("li").eq(0), self);
         }          
       });
-
-    $('select').selectpicker();
-
-    $("#langSelect").on("change.he.lang", function(event){
-      var syntaxMode = $(this).find(":selected").val();
-       self.aceEditSession.setMode("ace/mode/"+syntaxMode);
-
-    })
-
-    $(".he-eraser").on("click.he.eraser", function(event){
-      self.mode = self.MODE_ERASE;
-      $(this)
-        .addClass('active')
-        .attr("disabled", "disabled")
-    })
-
-    //modes
-    $('.he-mode').on("click", "label", function(){
-      var newMode = $(this).hadClass("he-edit-label")?
-                      self.MODE_EDIT_TEXT :  self.MODE_HIGHLIGHT;
+    }
 
 
-    })
-
-    //init tooltip
-     $('.he-toolbar').tooltip({
-        selector: "[data-toggle=tooltip]",
-        placement: "bottom",
-        delay: { show: 1000, hide: 0 }
-      })
+    this.clearSelection = function(){
+      this.aceEditSession.selection.clearSelection();
     }
 
     /**
-    * Reinstantiates colorPicker with the new palette
+    * Set Editing or highlight mode
     * 
     */
     this.setMode = function (mode) {
-     this.aceEditor.setReadOnly(true)
-     this.aceEditor.setReadOnly(true)
+      var isHighlight = ((this.mode = mode) == this.MODE_HIGHLIGHT);
+
+      var handlerAction = isHighlight ? "on":"off";
+
+      this.aceEditor.setReadOnly(isHighlight);
+      //this.aceEditor[handlerAction]("mouseup", this.clearSelectionBinded)
+      this.aceEditSession
+        .selection[handlerAction]("changeSelection", this.onChangeSelectionBinded)
+      console.log("in " + mode );  
     };
 
    /**
@@ -232,7 +246,6 @@ var Highlight = (function(){
     this.setColorPalette = function (colorPalette) {
      this.colors= colorPalette;
      this.initColorpicker(); 
-
     };
 
     this.initColorpicker = function () {
@@ -240,9 +253,12 @@ var Highlight = (function(){
 
       var self = this
         , spectrumPallete = getSpectrumPalette(this.colors)
-        ,initColor = spectrumPallete[0][0];
+        , initColor = spectrumPallete[0][0];
 
-      self.selectionColor = initColor;
+      this.selectionColor = this.colors[initColor];
+      console.log("initColor", initColor)
+      console.log("set selectionColor to", this.colors[initColor])
+      $(".he-colorpicker").spectrum("destroy");
 
       $(".he-colorpicker").spectrum({
         showPaletteOnly: true,
@@ -254,27 +270,33 @@ var Highlight = (function(){
             .removeClass("active")
             .removeAttr("disabled");
 
-          self.mode = self.MODE_HIGHLIGHT;
+          self.highlightMode = self.HIGHLIGHT_COLOR;
         },
         change: function(color) {
           $(".he-eraser")
             .removeClass("active")
             .removeAttr("disabled");
 
-          self.mode = self.MODE_HIGHLIGHT;
+          self.highlightMode = self.HIGHLIGHT_ERASE;
           self.selectionColor = self.colors[color.toHex()];
+          console.log("set selectionColor to", self.colors[color.toHex()])
         }
       });
     };
 
-   
 
    /**
     * Adds a new Marker to the aceEditSession
     * 
     */
     this.addMarker = function (markRange, clazz) {
+      console.log(clazz)
      return this.aceEditSession.addMarker(markRange, clazz, "text", false);
+    }
+
+    this.removeAllMarkers = function () {
+      console.log(this.aceEditSession.getMarkers());
+      //return this.aceEditSession.addMarker(markRange, clazz, "text", false);
     }
 
 
@@ -282,11 +304,16 @@ var Highlight = (function(){
     * Handles changeSelection events
     * 
     */
-    this.onChangeSelection = function() {
-      console.log(this.selectionColor)
-     if (this.aceEditSession.selection.isEmpty()) return;
-     this.mode == this.MODE_HIGHLIGHT ?   this.highlightChange() : this.eraseChange();
-     console.log(this.aceEditSession.getMarkers());
+    this.onChangeSelection = function(e) {
+      setTimeout(function(e){
+        //console.log(this.selectionColor)
+        if (this.aceEditSession.selection.isEmpty()) return;
+        
+       // console.log("this.mode", this.mode)
+        this.mode == this.MODE_HIGHLIGHT ?   this.highlightChange() : this.eraseChange();
+        //console.log(this.aceEditSession.getMarkers());
+      }.bind(this,e), 5)
+
     }
 
     /**
@@ -365,7 +392,6 @@ var Highlight = (function(){
             this.oldstart = this.aceEditSession.selection.getSelectionAnchor();
             this.oldRange = markRange;
       }
-        this.aceEditSession.selection.clearSelection()
     }
 
     /**

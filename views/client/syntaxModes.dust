@@ -1,5 +1,5 @@
 <label class="sr-only" for="langSelect">Syntax Mode:</label>
-<select id="langSelect" class="form-label" data-live-search="true">
+<select id="syntaxSelect" class="form-label" data-live-search="true">
 {#syntaxModes}
   <option value="{file}" {@eq key=file value=currentMode}  selected="true"{/eq} >{name}</option>{~n}
 {/syntaxModes} 

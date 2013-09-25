@@ -1,6 +1,6 @@
-<li class="collapsed list-group-item" id="range-{id}"> 
-  <a ><img src="img/close.png" alt="Toggle"></a>
-  <span>
-  listElement(marker, preview, false) 
-  </span>
-</li>;
+<li class="collapsed list-group-item" id="{id}">
+  <span class="label label-default bootstrapred">&nbsp;</span>
+   <a><img src="img/close.png" alt="Toggle"></a>
+  <code class="he-highlighted-text">{text}</code>
+  <span class="badge">{range}</span>
+</li>

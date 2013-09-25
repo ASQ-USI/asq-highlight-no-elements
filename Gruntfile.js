@@ -3,6 +3,11 @@
 **/
 'use strict';
 
+require('dustjs-linkedin')
+  .optimizers.format = function(ctx, node) {
+  return node;
+};
+
 module.exports = function(grunt) {
 
   // Project configuration.

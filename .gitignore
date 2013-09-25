@@ -58,3 +58,7 @@ Thumbs.db
 ######################
 .nodemonignore
 public/thumbs
+
+# Various #
+######################
+./TODO.md 
