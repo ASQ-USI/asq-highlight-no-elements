@@ -80,7 +80,7 @@
           </div>
 
           <div class="btn-group pull-right">
-          <button type="button" class="btn btn-warning" href="">
+          <button type="button" class="btn btn-warning he-export-ranges-btn" href="">
              <span class="glyphicon glyphicon-save"></span> Ranges
           </button>
             <button type="button" class="btn btn-warning" href="">
@@ -98,23 +98,33 @@
     int i = i + 5 + ((int)5.0) + ((int)5f);
   }
 }</div>
+
       <div class="he-inspector col-xs-12 col-sm-5 zero-padding clearfix">
-        <ul id="rangestext" class="list-group">
-          <li class="collapsed list-group-item" id="range17">
-            <span class="label label-default bootstrapred">&nbsp;</span>
-             <a><img src="img/close.png" alt="Toggle"></a>
-            <code class="he-highlighted-text">ss C {
-            &hellip;</code>
-            <span class="badge">0:10 - 4:5</span>
-          </li>
+        <ul class="nav nav-tabs">
+          <li class=""><a href="#ranges" data-toggle="tab">Ranges</a></li>
+          <li class=""><a href="#occurences" data-toggle="tab"># Occurences</a></li>
         </ul>
+        <div class="tab-content">
+          <div class="tab-pane fade" id="ranges">
+            <ul class="list-group he-ranges">
+            </ul>
+          </div>
+          <div class="tab-pane fade" id="occurences">
+            <ul class="list-group he-occurences">
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
 
-      <div class="row">
-        <div class="col-xs-12 col-sm-9 zero-padding">
+      <div class="row he-output">
+        <div class="col-xs-12 col-sm-7 zero-padding">
           <h3>Question Microformat:</h3>
           <pre><code class="language-markup he-microformat"></code></pre>
+        </div>
+        <div class="col-xs-12 col-sm-5 zero-padding">
+          <h3>Ranges:</h3>
+          <pre><code class="language-javascript he-ranges-output"></code></pre>
         </div>
       </div>
 
@@ -123,6 +133,7 @@
 
   <script src="vendor/ace/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
   <script src="vendor/jquery/jquery.js"></script>
+  <script src="vendor/sugar/sugar.min.js"></script>
   <script src='vendor/spectrum/spectrum.js'></script>
   <script src='vendor/prism/prism.js'></script>
   <script src="vendor/bootstrap/js/bootstrap.min.js"></script>  
@@ -135,5 +146,6 @@
   <script src="js/highlight/task.js"></script>  
   <script src="js/highlight/highlight.js"></script>
   <script src="js/highlight/editor.js"></script>
+
 </body>
 </html>

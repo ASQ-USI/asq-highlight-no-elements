@@ -2,7 +2,8 @@
 data-asq-assessment="auto"
 data-asq-lang-syntax="{syntax}"
 data-asq-assessment-mode="{solutionType}"
-data-asq-solution="{}">
+data-asq-solution-type="ranges"
+data-asq-solution="{ranges}">
 <h2 class="stem">{stemHtml}</h2>
 {#tasks}  <div class="input-group input-group-sm">
     <span class="input-group-addon asq-highlight-task-color" data-color="{color}">&nbsp;</span>

@@ -41,7 +41,7 @@ var HighlightEditor = (function(){
     this.activePalette = {};
     this.defaultColor = 'f0ad4e'
     this.taskCounter = 0;
-    this.highlight =  new Highlight(options.highlight);
+    window.highlight = this.highlight =  new Highlight(options.highlight);
 
 
     //DOM 
@@ -52,7 +52,8 @@ var HighlightEditor = (function(){
     this.question = {
       stemHtml : '',
       tasks     : [],
-      ranges   : []
+      ranges   : {},
+      //solution: tupe
     };
 
     var $taskCreatorRoot = this.$root.find('.he-task-creator').eq(0)
@@ -96,6 +97,14 @@ var HighlightEditor = (function(){
       //initiate new task creator
       this.addColorPicker(this.taskCreator.$color)
       this.taskCreator.$addBtn.click(this.addNewTask.bind(this))
+
+      $('.he-export-ranges-btn').on('click.he.export', function(){
+        var hRanges = self.highlight.getHighlightRanges();
+        $('.he-ranges-output').html(JSON.stringify(hRanges, undefined, 2))
+        self.exportMicroformat();
+      });
+
+      $('a[href="#ranges"]').tab('show')
     }
 
     this.addNewTask = function(){
@@ -141,7 +150,7 @@ var HighlightEditor = (function(){
             delete self.taskItems[newId];
           }
         });
-
+       
         this.exportMicroformat();
       }.bind(this))
     }
@@ -152,13 +161,16 @@ var HighlightEditor = (function(){
         return [{color: v.color, description: v.htmlEditable.unescapedText}];
       });
 
+      this.question.ranges = JSON.stringify(this.highlight.getHighlightRanges());
+
       dust.render('highlightMf', this.question, function(err,out){
         if (err) console.log(err);
 
         //hackery to escape html text
         var escapedText = $('<textarea/>').html(out).html()
         $('.he-microformat').html(escapedText);
-        Prism.highlightAll();
+        Prism.highlightElement($('.he-microformat')[0]);
+        Prism.highlightElement($('.he-ranges-output')[0]);
       })
     }
 
@@ -189,7 +201,7 @@ $(function(){
   var hEditor = new HighlightEditor({
     hEditorId : 'he-editor-1',
     highlight: {
-      text: 'editor',
+      el: 'editor',
       lang : 'java'
     }
   })
