@@ -5,3 +5,4 @@
 - remove default colors from highlight.js
 - #he-range-item can be stored in a variable instead of being in a string
 - Remove Dot dot dod plugin
+- add color property to marker range so that we dont have to filter the clazz

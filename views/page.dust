@@ -142,6 +142,7 @@
   <script src="templates/syntaxModes.js" ></script>
   <script src="templates/colorTaskItem.js" ></script> 
   <script src="templates/rangeListItem.js" ></script>
+  <script src="templates/occurenceListItem.js" ></script>
   <script src="templates/highlightMf.js" ></script>
   <script src="js/highlight/task.js"></script>  
   <script src="js/highlight/highlight.js"></script>

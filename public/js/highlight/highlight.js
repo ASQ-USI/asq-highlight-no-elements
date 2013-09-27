@@ -98,6 +98,7 @@ var Highlight = (function(){
 
     this.settings = $.extend({}, this.defaultOptions, options)
     this.$ranges = null;
+    this.$occurences = null
     this.aceEditor = null;
     this.aceEditSession=null;
     this.selectionColor = '';
@@ -133,6 +134,7 @@ var Highlight = (function(){
       this.initColorpicker();
 
       this.$ranges = $('.he-ranges').eq(0);
+      this.$occurences = $('.he-occurences').eq(0);
       
       //syntax dropdoown
       var modesObj = {
@@ -226,9 +228,7 @@ var Highlight = (function(){
     * 
     */
     this.mergeByColor = function(){
-      var ranges = this.getHighlightRanges()
-
-      for (var color in ranges){
+      for (var color in this.colors){
         this.mergeColor(color);
       }
     }
@@ -269,6 +269,34 @@ var Highlight = (function(){
         return removed;
     };
 
+    this.getMarkerColorName= function(marker){
+      var s =marker.clazz
+        , hclass="ace_highlight";
+
+      return s.substring((s.indexOf(hclass)+ hclass.length +1),s.length);
+    }
+
+    this.getOccurences = function(){
+      var markers = this.getHighlightMarkers()
+        , occurences = {}
+        ,self = this;
+
+      for(var key in this.colors){
+        occurences[this.colors[key]] = {};
+      }
+
+      $.each(markers, function(){
+        var colorName = self.getMarkerColorName(this)
+        , text = self.aceEditSession.getTextRange(this.range)
+        , ocColor = occurences[colorName];
+        
+        if(! ocColor.hasOwnProperty(text)){
+          ocColor[text] = 0;
+        }
+        ocColor[text]++;
+      });
+      return occurences;
+    }
 
     /**
     * Set Editing or highlight mode
@@ -357,14 +385,13 @@ var Highlight = (function(){
 
     this.getHighlightRanges = function (){
        var hMarkers = this.getHighlightMarkers()
-        , hRanges = {};
+        , hRanges = {}
+        , self = this;
 
        $.each(hMarkers, function(i,v){
-        var colorStr =v.clazz
+        var colorStr = self.getMarkerColorName(v)
           , hclass="ace_highlight";
 
-        //get color name
-        colorStr = colorStr.substring((colorStr.indexOf(hclass)+ hclass.length +1),colorStr.length);
         if(! hRanges.hasOwnProperty(colorStr) ){
           hRanges[colorStr] = [];
         }
@@ -398,6 +425,7 @@ var Highlight = (function(){
       selRange.id = this.lastMarker;
       this.addRangeItem(markers[this.lastMarker], this.lastMarker, this.selectionColor);
       this.mergeColor(this.selectionColor);
+      this.drawOccurencesList();
     }
 
 
@@ -493,6 +521,32 @@ var Highlight = (function(){
 
       return new Range(resultstart.row, resultstart.column,
                        resultend.row, resultend.column);
+    }
+
+    this.drawOccurencesList =function(){
+      var occurences = this.getOccurences();
+      this.$occurences.empty();
+      for (var color in occurences){
+        for (var s in occurences[color]){
+          this.addOccurenceItem(color, s, occurences[color][s]);
+        }
+      }
+    }
+
+    this.addOccurenceItem = function(color, text, count) {
+      var self = this;
+
+      var occurenceItemObj = {
+        colorClass: color,
+        summary: text.truncate(30,'right','…'),
+        text: text,
+        occurences: count
+      }
+      
+      dust.render('occurenceListItem', occurenceItemObj, function(err,out){
+        if (err) console.log(err);
+        self.$occurences.append(out)
+      });
     }
 
     this.addRangeItem = function(marker, id, color) {
