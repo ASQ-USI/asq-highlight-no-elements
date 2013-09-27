@@ -402,146 +402,62 @@ var Highlight = (function(){
 
 
     /**
-    * Adds a new Marker to the aceEditSession
-    * 
-    */
-    // this.highlightChange = function(){
-    //   console.log(this.aceEditSession.getMarkers())
-    //   var selRange = this.aceEditSession.selection.getRange()
-    //     , markers = this.aceEditSession.getMarkers()
-    //     , newRange = null
-    //     , adjacent = false
-    //     , tempRange = null
-    //     , toRemove = new Array()
-    //     , oldColor = this.selectionColor
-    //     , currentstart = this.aceEditSession.selection.getSelectionAnchor();
-
-    //   if (this.oldstart != null) {
-    //        if (currentstart.row == this.oldstart.row && currentstart.column == this.oldstart.column && oldColor == this.selectionColor ) {
-    //             this.aceEditSession.d(this.lastMarker);
-    //             //console.log('#' + this.rangeIdPrefix+this.lastMarker)
-    //             $('#' + this.rangeIdPrefix+this.lastMarker).remove();
-    //        }
-    //   }
-    //   newRange = selRange;
-    //   for (var key in markers) {
-    //     var marker = markers[key]
-    //     , mRange = marker.range
-
-    //     if (marker.clazz.indexOf("ace_highlight") != -1) {
-    //         var rangeAdjacency = this.includes(mRange, newRange);
-    //         if (rangeAdjacency == 5) {
-    //              tempRange = new Range(mRange.start.row, mRange.start.column
-    //                                 , newRange.end.row, newRange.end.column )
-    //              adjacent = true;
-    //         }
-            
-    //         if (rangeAdjacency == 6) {
-    //              tempRange = new Range(newRange.start.row, newRange.start.column
-    //                                 , mRange.end.row, mRange.end.column )
-    //              adjacent = true;
-    
-    //         }
-    //         if (adjacent) {
-    //           console.log("it's adjacent")
-    //              toRemove.push(key);
-    //              $('#' + this.rangeIdPrefix+key).remove();
-    //              newRange = tempRange
-    //         }
-    //     }
-    //   }
-    //   if (!adjacent) {
-    //         newRange = new Range(selRange.start.row, selRange.start.column, selRange.end.row, selRange.end.column);
-    //         this.oldstart = this.aceEditSession.selection.getSelectionAnchor();
-    //         this.oldRange = newRange;
-    //         this.lastMarker = this.addMarker(newRange, 'ace_highlight ' + this.selectionColor);
-    //         var markers = this.aceEditSession.getMarkers();
-    //         this.addRangeItem(markers[this.lastMarker], this.lastMarker, this.selectionColor);
-    //   } else {
-    //         var clazz = null;
-    //         for (var i = 0; i < toRemove.length; i++) {
-    //              clazz = markers[toRemove[i]].clazz;
-    //              this.aceEditSession.d(toRemove[i]);
-    //         }
-    //         var markerId1 = this.addMarker(newRange, clazz);
-    //         this.addRangeItem(markers[markerId1], markerId1, this.selectionColor);
-    //         this.oldstart = this.aceEditSession.selection.getSelectionAnchor();
-    //         this.oldRange = newRange;
-    //   }
-    // }
-
-    /**
     * Erases Markers
     * 
     */
     this.eraseChange = function(){
       var eraserRange = this.aceEditSession.selection.getRange() 
-      , markers = this.getHighlightMarkers()
-      , removed = []
+        , markers = this.getHighlightMarkers()
+        , removed = []
+        , self=this;
 
-      var self=this;
-
+      //keep in mind that 'return' statements inside
+      // $.each callbacks work as 'continue' statements
       $.each(markers, function(){
         var range = this.range;
 
-        // can touch this!
+        // can touch this (...range since they do not intersect)!
         if (!range.intersects(eraserRange)) return;
 
         if(range.isEqual(eraserRange) || eraserRange.containsRange(range)){
           //remove range
           self.aceEditSession.removeMarker(range.id);
+          $('#' + self.rangeIdPrefix + this.id).remove();
           removed.push(range) 
           return;
         }
 
         if(range.containsRange(eraserRange)){
           //create the ending marker
-          console.log("2")
           var range2 = new Range(eraserRange.end.row, eraserRange.end.column , range.end.row , range.end.column);
-          var newMarkerId2 = self.addMarker(range2, this.clazz)
-          range2.id = newMarkerId2
+          var newMarkerId2 = self.addMarker(range2, this.clazz);
+          range2.id = newMarkerId2;
           self.addRangeItem(self.aceEditSession.getMarkers()[newMarkerId2], newMarkerId2, self.selectionColor);
 
-          //console.log(range, eraserRange, range2)
-
-          range.end.row = eraserRange.start.row
-          range.end.column = eraserRange.start.column
-          self.aceEditSession.removeMarker(range.id);
-          removed.push(range) 
-          var newMarkerId = self.addMarker(range, this.clazz)
-          range.id = newMarkerId;
-          console.log("yeah")
-          $('#' + self.rangeIdPrefix + this.id).remove();
-          self.addRangeItem(self.aceEditSession.getMarkers()[newMarkerId], newMarkerId, self.selectionColor);
-
-          //self.mergeByColor();
-          return;
+          range.end.row = eraserRange.start.row;
+          range.end.column = eraserRange.start.column;
+        }else{
+          /*
+         * * `-1`: (B) begins before (A) but ends inside of (A)<br/>
+         * * `+1`: (B) begins inside of (A) but ends outside of (A)<br/>
+         * * `42`: FTW state: (B) ends in (A) but starts outside of (A) */
+          console.log("The comparison says" + range.compareRange(eraserRange))
+          switch(range.compareRange(eraserRange)){
+            case -1:
+                range.start.row = eraserRange.end.row;
+                range.start.column = eraserRange.end.column;
+              break;
+            case 1:
+                range.end.row = eraserRange.start.row;
+                range.end.column = eraserRange.start.column;
+              break;
+            case 42:
+                range.end.row = eraserRange.end.row;
+                range.end.column = eraserRange.end.column;
+              break;
+          }
         }
 
-
-        /*
-       * * `-1`: (B) begins before (A) but ends inside of (A)<br/>
-       * * `+1`: (B) begins inside of (A) but ends outside of (A)<br/>
-       * * `42`: FTW state: (B) ends in (A) but starts outside of (A) */
-        console.log("The comparison says" + range.compareRange(eraserRange))
-        switch(range.compareRange(eraserRange)){
-          case -1:
-              console.log("3")
-              range.start.row = eraserRange.end.row
-              range.start.column = eraserRange.end.column
-            break;
-          case 1:
-              console.log("4")
-              range.end.row = eraserRange.start.row
-              range.end.column = eraserRange.start.column
-            break;
-          case 42:
-              console.log("5")
-              range.end.row = eraserRange.end.row
-              range.end.column = eraserRange.end.column
-            break;
-        }
-        console.log("final")
         self.aceEditSession.removeMarker(range.id);
         $('#' + self.rangeIdPrefix + this.id).remove();
         removed.push(range) 
@@ -552,137 +468,9 @@ var Highlight = (function(){
 
       });
 
-        self.mergeByColor();
-
+      self.mergeByColor();
       return removed;
-
     }
-
-    /**
-    * Erases Markers
-    * 
-    */
-    this.eraseChange2 = function(){
-      var selRange = this.aceEditSession.selection.getRange() 
-        , markers = this.aceEditSession.getMarkers()
-        , dehigh = null;
-
-      for (var key in markers) {
-        var marker = markers[key]
-        , mRange = marker.range
-        console.log('marker0: ' + marker)
-        if (marker.clazz.indexOf("ace_highlight") != -1) {
-          dehigh = selRange;
-          var currentstart = this.aceEditSession.selection.getSelectionAnchor();
-          if (currentstart.row == this.oldstart.row && currentstart.column == this.oldstart.column) {
-           dehigh = this.rangeMinus(this.oldRange, dehigh);
-          }
-          var rangeIncludes = this.includes(mRange, dehigh);
-
-          this.aceEditSession.d(key);
-          $('#' + this.rangeIdPrefix+key).remove();
-
-          switch (rangeIncludes){
-            case 1:
-              if (dehigh.end.row != mRange.end.row || dehigh.end.column != mRange.end.column) {
-                var markRange1 = new Range(dehigh.end.row, dehigh.end.column, mRange.end.row, mRange.end.column);
-                var markerId1 = this.addMarker(markRange1, marker.clazz);
-                this.addRangeItem(markers[markerId1], markerId1);     
-              }
-              break;
-
-            case 2:
-              if (mRange.start.row!=dehigh.start.row || mRange.start.column != dehigh.start.column) {
-                var markRange1 = new Range(mRange.start.row, mRange.start.column, dehigh.start.row, dehigh.start.column);
-                var markerId1 = this.addMarker(markRange1, marker.clazz);
-                this.addRangeItem(markers[markerId1], markerId1);
-              }
-              break;
-
-            case 3:
-              if (mRange.start.row!=dehigh.start.row || mRange.start.column != dehigh.start.column) {
-                var markRange1 = new Range(mRange.start.row, mRange.start.column, dehigh.start.row, dehigh.start.column);
-                var markerId1 = this.addMarker(markRange1, marker.clazz);
-                this.addRangeItem(markers[markerId1], markerId1);
-              }
-              if (dehigh.end.row!=mRange.end.row || dehigh.end.column!= mRange.end.column) {
-                var markRange2 = new Range(dehigh.end.row, dehigh.end.column, mRange.end.row, mRange.end.column);
-                var markerId2 = this.addMarker(markRange2, marker.clazz);
-                this.addRangeItem(markers[markerId2], markerId2);
-              }
-              break;
-          }
-        }
-      }
-
-      var markRange = new Range(selRange.start.row, selRange.start.column, selRange.end.row, selRange.end.column);
-      this.oldstart = this.aceEditSession.selection.getSelectionAnchor();
-      this.oldRange = markRange;
-    }
-
-    /**
-    * Checks if ranges 1 includes range 2
-    * @param {Ace.Range} range1
-    * @param {Ace.Range} range2
-    * @returns {Number} <tt>0</tt>: range1 is a superset of range2 
-    * <tt>1</tt>: range1 and range2 start at the same character index 
-    * <tt>2</tt>: range1 and range2 end at the same character index 
-    * <tt>3</tt>: range1 is disjoint form range2
-    * <tt>4</tt>: range1 overlaps with range2 but it's not a superset of it
-    * <tt>5</tt>: range1 ends at the same character index where range2 starts
-    * <tt>6</tt>: range1 starts at the same character index where range2 ends
-    */
-    this.includes = function (range1, range2) {
-
-      /* In order to avoid lots of 'ifs' we use the following method:
-      * We reduce the dimensions of the start end end properties to 1.
-      * in order to do that, we assign maxC to be the largerst column + 1.
-      * we assume that each row has at most maxC characters. 
-      * Then we assign the start and end scores for each range, where
-      * score = (number_of_rows * maxC) + curent_row_column 
-      */
-
-
-      // Max character per line so that our math work out
-      var maxC = Math.max(range1.start.column , range1.end.column,
-                                     range2.start.column, range2.end.column) + 1; 
-
-      var r1 = {
-        start: range1.start.row*maxC + range1.start.column,
-        end: range1.end.row*maxC + range1.end.column
-      },
-
-      r2 = {
-        start: range2.start.row*maxC + range2.start.column,
-        end: range2.end.row*maxC + range2.end.column
-      }
-
-      //range1 is a superset of range2
-      if(r1.start <= r2.start && r1.end >= r2.end) return 3;
-
-      //range1 is disjoint range2
-      if (r1.start > r2.end || r2.start > r1.end) return 0;
-
-      //range1 starts at the same character as range2
-      if (r1.start == r2.start) return 1;
-
-      //range1 finishes at the same character as range2
-      if (r1.end == r2.end) return 2;
-
-      //range1 ends at the same character index where range2 starts
-      if (r1.end == r2.start) return 5;
-      
-      //range1 starts at the same character index where range2 ends
-      if(r1.start == r2.end) return 6;
-
-      //Just overlapping
-      return 4;
-    }
-
-    this.consolidate = function (range1, range2) {
-      //mark
-    } 
-
 
 
     this.rangeMinus = function(range1, range2) {
