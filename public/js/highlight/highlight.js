@@ -184,7 +184,7 @@ var Highlight = (function(){
     })
 
     //ranges text
-    $('.he-ranges')
+    $('.he-ranges, .he-occurences')
       .on('click', '.he-code-toggle', function(event){
         event.preventDefault();
         $(event.target).parent('.list-group-item').toggleClass('expanded')
