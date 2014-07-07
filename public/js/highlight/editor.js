@@ -80,7 +80,7 @@ var HighlightEditor = (function(){
       this.highlight.init();
 
       //should be empty but it's a useful visual cue
-      this.exportMicroformat()
+      this.exportMicroformat();
 
       var self=this
         , tc=this.taskCreator;

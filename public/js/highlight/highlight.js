@@ -61,6 +61,7 @@ var Highlight = (function(){
     // editor
     this.MODE_HIGHLIGHT = 'modeHighlight';
     this.MODE_EDIT_TEXT = 'modeEditText';
+    this.MODE_HEATMAP   = 'modeHeatmap';
 
     this.mode = '';
 
@@ -131,6 +132,9 @@ var Highlight = (function(){
       this.aceEditSession.setMode('ace/mode/'+this.settings.lang.toLowerCase());
 
       this.setMode(this.MODE_HIGHLIGHT);
+      setTimeout( function(){
+        $('.he-heatmap-label').trigger('click')
+      },200 );
       this.initColorpicker();
 
       this.$ranges = $('.he-ranges').eq(0);
@@ -161,10 +165,14 @@ var Highlight = (function(){
 
       //mode buttons
       $('.he-mode').on('click.he.mode', 'label', function(){
-        var newMode = $(this).hasClass('he-edit-label') ?
-                        self.MODE_EDIT_TEXT :  self.MODE_HIGHLIGHT;
-
-        if(self.mode === newMode) return;
+        var newMode;
+        if( $(this).hasClass('he-edit-label') ){
+          newMode = self.MODE_EDIT_TEXT;
+        }else if ($(this).hasClass('he-hightlight-label')){
+          newMode = self.MODE_HIGHLIGHT;
+        }else{
+          newMode = self.MODE_HEATMAP;
+        }
         self.setMode(newMode)
       })
 
@@ -303,14 +311,35 @@ var Highlight = (function(){
     * 
     */
     this.setMode = function (mode) {
-      var isHighlight = ((this.mode = mode) == this.MODE_HIGHLIGHT);
+      if(this.mode === mode) return;
+      this.mode = mode;
 
-      var handlerAction = isHighlight ? 'on':'off';
+      // this.aceEditSession.selection.on('changeCursor', function(){
+      //     var cursor = this.aceEditSession.selection.getCursor();
+      //   }.bind(this));
 
-      this.aceEditor.setReadOnly(isHighlight);
-      //this.aceEditor[handlerAction]('mouseup', this.clearSelectionBinded)
-      this.aceEditSession
-        .selection[handlerAction]('changeSelection', this.onChangeSelectionBinded)
+      switch(this.mode){
+        case this.MODE_EDIT_TEXT:
+          this.aceEditor.setReadOnly(false);
+          this.aceEditSession
+            .selection.off('changeSelection', this.onChangeSelectionBinded);
+          break;
+        case this.MODE_HIGHLIGHT:
+          this.aceEditor.setReadOnly(true);
+          this.aceEditSession
+            .selection.on('changeSelection', this.onChangeSelectionBinded);
+          break;
+        case this.MODE_HEATMAP:
+          $('#heatmap-input-tab').trigger('click');
+          this.aceEditor.setReadOnly(true);
+          this.aceEditSession
+            .selection.off('changeSelection', this.onChangeSelectionBinded);
+          $('#heatmap-ta').on('input', function(event){
+            this.drawHeatmap(event.target.value);
+          }.bind(this));
+          break;
+
+      }
     };
 
     /**
@@ -374,14 +403,14 @@ var Highlight = (function(){
     */
     this.addMarker = function (markRange, clazz) {
      return this.aceEditSession.addMarker(markRange, clazz, 'text', false);
-    }
+    };
 
     this.getHighlightMarkers = function (){
        //console.log(this.aceEditSession.getMarkers());
        return $.map(this.aceEditSession.getMarkers(), function(v,k){
         return v.clazz.indexOf("ace_highlight")!= -1? v : null
       });
-    }
+    };
 
     this.getHighlightRanges = function (){
        var hMarkers = this.getHighlightMarkers()
@@ -399,7 +428,7 @@ var Highlight = (function(){
         
       });
       return hRanges;
-    }
+    };
 
 
     /**
@@ -414,8 +443,7 @@ var Highlight = (function(){
         this.highlightMode == this.HIGHLIGHT_COLOR ?   this.highlightChange() : this.eraseChange();
         //console.log(this.aceEditSession.getMarkers());
       }.bind(this,e), 1)
-
-    }
+    };
 
     this.highlightChange = function(){
       var selRange = this.aceEditSession.selection.getRange()
@@ -426,7 +454,7 @@ var Highlight = (function(){
       this.addRangeItem(markers[this.lastMarker], this.lastMarker, this.selectionColor);
       this.mergeColor(this.selectionColor);
       this.drawOccurencesList();
-    }
+    };
 
 
     /**
@@ -498,7 +526,7 @@ var Highlight = (function(){
 
       self.mergeByColor();
       return removed;
-    }
+    };
 
 
     this.rangeMinus = function(range1, range2) {
@@ -521,7 +549,7 @@ var Highlight = (function(){
 
       return new Range(resultstart.row, resultstart.column,
                        resultend.row, resultend.column);
-    }
+    };
 
     this.drawOccurencesList =function(){
       var occurences = this.getOccurences();
@@ -531,7 +559,7 @@ var Highlight = (function(){
           this.addOccurenceItem(color, s, occurences[color][s]);
         }
       }
-    }
+    };
 
     this.addOccurenceItem = function(color, text, count) {
       var self = this;
@@ -547,7 +575,7 @@ var Highlight = (function(){
         if (err) console.log(err);
         self.$occurences.append(out)
       });
-    }
+    };
 
     this.addRangeItem = function(marker, id, color) {
       var self = this
@@ -567,6 +595,30 @@ var Highlight = (function(){
         if (err) console.log(err);
         self.$ranges.append(out)
       });
+    };
+
+    this.drawHeatmap = function(ranges){
+      var hmap = new Heatmap({
+        textLines: this.aceEditSession.getDocument().getAllLines()
+      });
+      try{
+        ranges = JSON.parse(ranges)
+      }catch(err){
+        console.log("Error parsing ranges", err)
+      }
+      hmap.addHueRanges(ranges);
+      var hues = hmap.hues;
+      for (var key in hues){
+        var hue = hues[key];
+        for(var i = 0, lrow = hue.weights.length; i < lrow; i++){
+          for(var j = 0, lcol = hue.weights[i].length; j < lcol; j++){
+            var val = ~~(hue.weights[i][j] * 10);
+            if(val == 0) continue;
+            var range = new Range(i, j, i, j+1);
+            this.addMarker(range, 'ace_highlight ' + key + '-' + val);
+          }
+        }
+      }
     }
 
   }).call(Highlight.prototype)
