@@ -1,0 +1,2 @@
+// heatmapListItem.dust
+(function(){dust.register("heatmapListItem",body_0);function body_0(chk,ctx){return chk.write("<li class=\"collapsed list-group-item\" id=\"").reference(ctx._get(false, ["id"]),ctx,"h").write("\"><span class=\"label label-default ").reference(ctx._get(false, ["colorClass"]),ctx,"h").write("\">&nbsp;</span><code class=\"he-heatmap-task-description\">").reference(ctx._get(false, ["description"]),ctx,"h").write("</code></li>");}return body_0;})();

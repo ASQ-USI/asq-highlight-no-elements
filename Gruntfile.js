@@ -33,6 +33,29 @@ module.exports = function(grunt) {
       },
     },
 
+    //less task
+    less: {
+      development: {
+        options: {
+          paths: ["public/less"]
+        },
+        files: {
+          "public/css/highlight.css": "public/less/highlight.less",
+          "public/css/style.css": "public/less/style.less"
+        }
+      },
+      production: {
+        options: {
+          paths: ["public/less"],
+          yuicompress: true
+        },
+        files: {
+          "public/css/highlight.css": "public/less/highlight.less",
+          "public/css/style.css": "public/less/style.less"
+        }
+      }
+    },
+
     //watch
     watch: {
       options:{
@@ -51,6 +74,14 @@ module.exports = function(grunt) {
           interrupt: true
         },
       },
+      less: {
+        files: ['public/**/*.less'],
+        tasks: ['less:development'],
+        options: {
+          livereload: true,
+          interrupt: true
+        },
+      }
     }
   });
 
@@ -58,8 +89,6 @@ module.exports = function(grunt) {
   grunt.registerTask('default', ['watch']);
 
   //npm tasks
-
-  grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-dust');
+  require('load-grunt-tasks')(grunt);
 
 };

@@ -1,0 +1,4 @@
+<li class="collapsed list-group-item" id="{id}">
+  <span class="label label-default {colorClass}">&nbsp;</span>
+  <code class="he-heatmap-task-description">{description}</code>
+</li>

@@ -77,6 +77,10 @@
               <input type="radio" name="options" id="option1">
                 <span class="glyphicon glyphicon-play"></span> Highlight
             </label>
+            <label class="btn btn-default he-heatmap-label">
+              <input type="radio" name="options" id="option1">
+                <span class="glyphicon glyphicon-fire"></span> Heatmap
+            </label>
           </div>
 
           <div class="btn-group pull-right">
@@ -101,8 +105,10 @@
 
       <div class="he-inspector col-xs-12 col-sm-5 zero-padding clearfix">
         <ul class="nav nav-tabs">
-          <li class=""><a href="#ranges" data-toggle="tab">Ranges</a></li>
-          <li class=""><a href="#occurences" data-toggle="tab"># Occurences</a></li>
+          <li><a href="#ranges" data-toggle="tab">Ranges</a></li>
+          <li><a href="#occurences" data-toggle="tab"># Occurences</a></li>
+          <li><a href="#heatmap-input" data-toggle="tab" id="heatmap-input-tab">Heatmap Input</a></li>
+          <li><a href="#heatmap-labels" data-toggle="tab" id="heatmap-labels-tab">Heatmap Labels</a></li>
         </ul>
         <div class="tab-content">
           <div class="tab-pane fade" id="ranges">
@@ -111,6 +117,13 @@
           </div>
           <div class="tab-pane fade" id="occurences">
             <ul class="list-group he-occurences">
+            </ul>
+          </div>
+          <div class="tab-pane fade" id="heatmap-input">
+            <textarea name="heatmap-ta" id="heatmap-ta" cols="77" rows="30" placeholder="enter hue ranges">[{"bootstrapred":[{"start":{"row":"0","column":"0"},"end":{"row":"0","column":"6"},"id":"42"},{"start":{"row":"1","column":"2"},"end":{"row":"1","column":"8"},"id":"48"}]},{"bootstrapred":[{"start":{"row":"0","column":"0"},"end":{"row":"0","column":"6"},"id":"42"}]}]</textarea>
+          </div>
+          <div class="tab-pane fade" id="heatmap-labels">
+            <ul class="list-group he-heatmap-labels">
             </ul>
           </div>
         </div>
@@ -138,13 +151,14 @@
   <script src='vendor/prism/prism.js'></script>
   <script src="vendor/bootstrap/js/bootstrap.min.js"></script>  
   <script src="vendor/bootstrap-select/bootstrap-select.min.js"></script>  
-  <script src="vendor/dust/dust-core-2.0.3.js"></script>
+  <script src="vendor/dust/dust-core.js"></script>
   <script src="templates/syntaxModes.js" ></script>
   <script src="templates/colorTaskItem.js" ></script> 
   <script src="templates/rangeListItem.js" ></script>
   <script src="templates/occurenceListItem.js" ></script>
   <script src="templates/highlightMf.js" ></script>
-  <script src="js/highlight/task.js"></script>  
+  <script src="js/highlight/task.js"></script> 
+  <script src="js/highlight/Heatmap.js"></script>  
   <script src="js/highlight/highlight.js"></script>
   <script src="js/highlight/editor.js"></script>
 
