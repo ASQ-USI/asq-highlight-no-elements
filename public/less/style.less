@@ -1,3 +1,46 @@
+// mixins
+@import "lib/lesshat.less";
+
+/* Typography */
+h1, h2, h3, h4, h5, h6{
+  font-family: 'HelveticaNeue-Light';
+  color: #5E8BFF;
+}
+
+/* header */
+header {
+  padding: 5px 10px;
+  border-bottom: 1px solid #ccc;
+  .background-image(linear-gradient(to bottom, rgb(211, 224, 237) 50%, rgb(226, 233, 240) 100%));
+
+ h4{ 
+    margin: 0;
+    display: inline-block;
+    font-weight: normal;
+    color: black;
+    > span{
+      color: white;
+      padding: 0 3px 1px;
+      background-color: #FF0066;
+      font-family: 'HelveticaNeue-Light';
+      font-weight: 200;
+    }
+  }
+}
+
+#logo{
+ height: 30px;
+}
+
+/* content */
+#editor-container{
+  padding-top: 15px;
+}
+
+#task-container{
+  margin-top: 8px;
+}
+
 #editor {
   height: 400px;
   float: left;
@@ -37,8 +80,7 @@
 }
 
 .he-toolbar{
-  background-color: #f8f8f8;
-  border: 1px solid #e7e7e7;
+  padding: 0 0 5px;
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
 }
@@ -93,6 +135,16 @@ background-color: #f5f5f5;
 
 .he-code-toggle:active, .he-code-toggle:hover{
   text-decoration: none;
+}
+
+#heatmap-ta{
+  font-family:  Monaco, monospace;
+  font-size: 12px;
+}
+
+.he-heatmap-label-description{
+  margin-left: 10px;
+  font-weight: bold;
 }
 
 .he-output pre{

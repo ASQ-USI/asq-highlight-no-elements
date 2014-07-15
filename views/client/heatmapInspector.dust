@@ -1,0 +1,13 @@
+<ul class="nav nav-tabs">
+  <li><a href="#heatmap-input"  data-toggle="tab" id="heatmap-input-tab">Heatmap Input</a></li>
+  <li><a href="#heatmap-labels" data-toggle="tab" id="heatmap-labels-tab">Heatmap Labels</a></li>
+</ul>
+<div class="tab-content">
+  <div class="tab-pane fade" id="heatmap-input">
+    <textarea name="heatmap-ta" id="heatmap-ta" cols="77" rows="30" placeholder="enter hue ranges">[{"bootstrapred":[{"start":{"row":"0","column":"0"},"end":{"row":"0","column":"6"},"id":"42"},{"start":{"row":"1","column":"2"},"end":{"row":"1","column":"8"},"id":"48"}]},{"bootstrapred":[{"start":{"row":"0","column":"0"},"end":{"row":"0","column":"6"},"id":"42"}]},{"orange":[{"start":{"row":2,"column":4},"end":{"row":2,"column":7},"id":8}]},{"orange":[{"start":{"row":2,"column":4},"end":{"row":2,"column":7},"id":8},{"start":{"row":2,"column":22},"end":{"row":2,"column":25},"id":13},{"start":{"row":2,"column":35},"end":{"row":2,"column":38},"id":19}]  }]</textarea>
+  </div>
+  <div class="tab-pane fade" id="heatmap-labels">
+    <div class="list-group he-heatmap-label-list">
+    </div>
+  </div>
+</div>

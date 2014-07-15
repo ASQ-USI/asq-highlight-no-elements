@@ -17,18 +17,14 @@ module.exports = function(grunt) {
     //dust compilation
     dust: {
       defaults: {
-        files: [
-          {
-            expand: true,
-            cwd: "views/client/",
-            src: ["**/*.dust"],
-            dest: "public/templates/",
-            ext: ".js"
-          }
-        ],
+        files:{
+          "public/templates/templates.js" : "views/client/*.dust"
+        },
         options: {
+          runtime : false,
           wrapper: false,
-          relative: true
+          relative: true,
+          useBaseName: true
         }
       },
     },

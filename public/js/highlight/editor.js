@@ -39,9 +39,9 @@ var HighlightEditor = (function(){
     }
     this.spectrumPalette = getSpectrumPalette(this.colorPalette);
     this.activePalette = {};
-    this.defaultColor = 'f0ad4e'
+    this.defaultColor = 'f0ad4e';
     this.taskCounter = 0;
-    window.highlight = this.highlight =  new Highlight(options.highlight);
+    this.highlight =  new Highlight(options.highlight);
 
 
     //DOM 
@@ -68,6 +68,8 @@ var HighlightEditor = (function(){
 
     //tasks
     this.taskItems={};
+
+    this.init();
   };
 
   //Prototype methods
@@ -76,8 +78,6 @@ var HighlightEditor = (function(){
   (function(){
 
     this.init = function(){
-
-      this.highlight.init();
 
       //should be empty but it's a useful visual cue
       this.exportMicroformat();
@@ -89,14 +89,14 @@ var HighlightEditor = (function(){
       var formEditable = new HtmlEditable($('.he-stem .form-control'));
       formEditable.$el.on('blur.he.stem', function(){
         self.question.stemHtml = formEditable.unescapedText;
-        self.exportMicroformat()
+        self.exportMicroformat();
       })
       
-      tc.descEditable = new HtmlEditable(tc.$desc)
+      tc.descEditable = new HtmlEditable(tc.$desc);
 
       //initiate new task creator
-      this.addColorPicker(this.taskCreator.$color)
-      this.taskCreator.$addBtn.click(this.addNewTask.bind(this))
+      this.addColorPicker(this.taskCreator.$color);
+      this.taskCreator.$addBtn.click(this.addNewTask.bind(this));
 
       $('.he-export-ranges-btn').on('click.he.export', function(){
         var hRanges = self.highlight.getHighlightRanges();
@@ -104,7 +104,6 @@ var HighlightEditor = (function(){
         self.exportMicroformat();
       });
 
-      $('a[href="#ranges"]').tab('show')
     }
 
     this.addNewTask = function(){
@@ -202,10 +201,8 @@ $(function(){
     hEditorId : 'he-editor-1',
     highlight: {
       el: 'editor',
-      lang : 'java'
+      syntax : 'java'
     }
   })
-
-  hEditor.init();
 })
 

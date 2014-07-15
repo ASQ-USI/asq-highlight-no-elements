@@ -1,0 +1,14 @@
+<ul class="nav nav-tabs">
+  <li><a href="#ranges" data-toggle="tab">Ranges</a></li>
+  <li><a href="#occurences" data-toggle="tab">Occurences</a></li>
+</ul>
+<div class="tab-content">
+  <div class="tab-pane fade" id="ranges">
+    <ul class="list-group he-ranges">
+    </ul>
+  </div>
+  <div class="tab-pane fade" id="occurences">
+    <ul class="list-group he-occurences">
+    </ul>
+  </div>
+</div>

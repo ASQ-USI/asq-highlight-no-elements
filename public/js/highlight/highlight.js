@@ -55,7 +55,7 @@ var Highlight = (function(){
   var Highlight = function(options){
     this.defaultOptions = {
       el: 'editor',
-      lang: 'javascript',
+      syntax: 'javascript',
     };
 
     // editor
@@ -63,6 +63,7 @@ var Highlight = (function(){
     this.MODE_EDIT_TEXT = 'modeEditText';
     this.MODE_HEATMAP   = 'modeHeatmap';
 
+    this.modes = Object.create(null);
     this.mode = '';
 
     //highlight modes
@@ -107,8 +108,10 @@ var Highlight = (function(){
     this.oldstart = null;
     this.lastMarker = null;
 
-    this.rangeIdPrefix = 'he-range-item-'
+    this.rangeIdPrefix = 'he-range-item-';
 
+    //Let's get this started 
+    this.init();
   }
   
   //prototype methods
@@ -121,42 +124,50 @@ var Highlight = (function(){
     * 
     */
     this.init = function(){
+      this.modes[this.MODE_EDIT_TEXT] = this.setInEditTextMode.bind(this);
+      this.modes[this.MODE_HEATMAP] = this.setInHeatmapMode.bind(this);
+      this.modes[this.MODE_HIGHLIGHT] = this.setInHighlightMode.bind(this);
 
-      var self=this;
       this.clearSelectionBinded = this.clearSelection.bind(this);
       this.onChangeSelectionBinded = this.onChangeSelection.bind(this);
       
       ///setup ace editor
       this.aceEditor = ace.edit(this.settings.el);
       this.aceEditSession = this.aceEditor.getSession()
-      this.aceEditSession.setMode('ace/mode/'+this.settings.lang.toLowerCase());
+      this.aceEditSession.setMode('ace/mode/'+this.settings.syntax.toLowerCase());
 
-      this.setMode(this.MODE_HIGHLIGHT);
-      // setTimeout( function(){
-      //   $('.he-heatmap-label').trigger('click')
-      // },200 );
+      this.setMode(this.MODE_HEATMAP);
       this.initColorpicker();
-
-      this.$ranges = $('.he-ranges').eq(0);
-      this.$occurences = $('.he-occurences').eq(0);
       
       //syntax dropdoown
-      var modesObj = {
+      var self=this;
+
+      var syntaxModesObj = {
         syntaxModes:this.syntaxModes,
-        currentMode:self.settings.lang.toLowerCase()
+        currentMode:self.settings.syntax.toLowerCase()
       }
 
-      dust.render('syntaxModes', modesObj, function(err,out){
-        if(err)console.log(err)
+      dust.render('syntaxModes', syntaxModesObj, function(err,out){
+        if(err) {console.log(err);}
+        // console.log(out)
         $('.he-syntax-modes').html(out);
-      })
 
-      $('#syntaxSelect')
+        $('#syntaxSelect')
         .selectpicker()
         .on('change.he.syntax', function(event){
           var syntaxMode = $(this).find(':selected').val();
           self.aceEditSession.setMode('ace/mode/'+syntaxMode);
         });  
+        //initialize syntax
+        $('#syntaxSelect').selectpicker('val', self.settings.syntax)
+      });
+
+      // $('#syntaxSelect')
+      //   .selectpicker()
+      //   .on('change.he.syntax', function(event){
+      //     var syntaxMode = $(this).find(':selected').val();
+      //     self.aceEditSession.setMode('ace/mode/'+syntaxMode);
+      //   });  
 
       //eraser button
       $('.he-eraser').on('click.he.eraser', function(event){
@@ -168,7 +179,7 @@ var Highlight = (function(){
         var newMode;
         if( $(this).hasClass('he-edit-label') ){
           newMode = self.MODE_EDIT_TEXT;
-        }else if ($(this).hasClass('he-hightlight-label')){
+        }else if ($(this).hasClass('he-highlight-label')){
           newMode = self.MODE_HIGHLIGHT;
         }else{
           newMode = self.MODE_HEATMAP;
@@ -306,39 +317,72 @@ var Highlight = (function(){
     }
 
     /**
-    * Set Editing or highlight mode
+    * Set Mode
     * 
     */
     this.setMode = function (mode) {
       if(this.mode === mode) return;
-      this.mode = mode;
-
-      // this.aceEditSession.selection.on('changeCursor', function(){
-      //     var cursor = this.aceEditSession.selection.getCursor();
-      //   }.bind(this));
-
-      switch(this.mode){
-        case this.MODE_EDIT_TEXT:
-          this.aceEditor.setReadOnly(false);
-          this.aceEditSession
-            .selection.off('changeSelection', this.onChangeSelectionBinded);
-          break;
-        case this.MODE_HIGHLIGHT:
-          this.aceEditor.setReadOnly(true);
-          this.aceEditSession
-            .selection.on('changeSelection', this.onChangeSelectionBinded);
-          break;
-        case this.MODE_HEATMAP:
-          $('#heatmap-input-tab').trigger('click');
-          this.aceEditor.setReadOnly(true);
-          this.aceEditSession
-            .selection.off('changeSelection', this.onChangeSelectionBinded);
-          $('#heatmap-ta').on('input', function(event){
-            this.drawHeatmap(event.target.value);
-          }.bind(this));
-          break;
-
+      if(this.modes[mode]){
+        this.modes[mode]();
+      }else{
+        throw new Error('Invalid mode: ' + mode);
       }
+    };
+
+    this.setInEditTextMode = function(){
+      this.mode = this.MODE_EDIT_TEXT;
+      this.removeAllMarkers();
+      this.aceEditor.setReadOnly(false);
+      this.aceEditSession
+        .selection.off('changeSelection', this.onChangeSelectionBinded);
+      $('#heatmap-ta').off('input');
+      dust.render('editInspector', {}, function(err, out){
+        if (err) {console.log(err);}
+        $('.he-inspector').html(out);
+        $('.he-inspector a:first').tab('show');
+      });
+    };
+
+    this.setInHeatmapMode = function(){
+      this.mode = this.MODE_HEATMAP;
+      this.removeAllMarkers();
+      this.aceEditor.setReadOnly(true);
+      this.aceEditSession
+        .selection.off('changeSelection', this.onChangeSelectionBinded);
+
+      $(document).on('click', '#heatmap-labels .list-group-item', function(event){
+        this.drawHeatmap(event.currentTarget.dataset.hue);
+      }.bind(this))
+
+      dust.render('heatmapInspector', {}, function(err, out){
+        if (err) {console.log(err);}
+        $('.he-inspector').html(out);
+        $('.he-inspector a:first').tab('show');
+
+        $('#heatmap-ta').on('input', function(event){
+          this.updateHeatmapData(event.currentTarget.value);
+        }.bind(this));
+
+        this.$heatmapList = $('.he-heatmap-label-list');
+      }.bind(this));
+    };
+
+    this.setInHighlightMode = function(){
+      this.mode = this.MODE_HIGHLIGHT;
+      this.removeAllMarkers();
+      this.aceEditor.setReadOnly(true);
+      this.aceEditSession
+        .selection.on('changeSelection', this.onChangeSelectionBinded);
+      $('#heatmap-ta').off('input');
+      dust.render('highlightInspector', {}, function(err, out){
+        if (err) {console.log(err);}
+        $('.he-inspector').html(out);
+        $('.he-inspector a:first').tab('show');
+
+        //set elements for listing ranges and occurences
+        this.$ranges = $('.he-ranges').eq(0);
+        this.$occurences = $('.he-occurences').eq(0);
+      }.bind(this));
     };
 
     /**
@@ -450,7 +494,7 @@ var Highlight = (function(){
 
       this.lastMarker = this.addMarker(selRange, 'ace_highlight marker-' + this.selectionColor);
       selRange.id = this.lastMarker;
-      this.addRangeItem(markers[this.lastMarker], this.lastMarker, this.selectionColor);
+      this.addRangeListItem(markers[this.lastMarker], this.lastMarker, this.selectionColor);
       this.mergeColor(this.selectionColor);
       this.drawOccurencesList();
     };
@@ -460,11 +504,22 @@ var Highlight = (function(){
     * 
     */
     this.removeAllMarkers = function(){
-      var markers = this.aceEditSession.getMarkers()
-        , i = markers.length;
+      var markers = this.aceEditSession.getMarkers();
       
-      while(i--){
-        this.aceEditSession.removeMarker(marker[i]);
+      for (var id in markers){
+        if(markers[id].clazz.indexOf('ace_highlight') >= 0){
+          this.aceEditSession.removeMarker(id);
+        }
+      }
+
+      if(this.$ranges){
+        this.$ranges.empty();
+      }
+      if(this.$occurences){
+        this.$occurences.empty();
+      }
+      if(this.$heatmapList){
+        this.$heatmapList.empty();
       }
     };
 
@@ -500,7 +555,7 @@ var Highlight = (function(){
           var range2 = new Range(eraserRange.end.row, eraserRange.end.column , range.end.row , range.end.column);
           var newMarkerId2 = self.addMarker(range2, this.clazz);
           range2.id = newMarkerId2;
-          self.addRangeItem(self.aceEditSession.getMarkers()[newMarkerId2], newMarkerId2, self.selectionColor);
+          self.addRangeListItem(self.aceEditSession.getMarkers()[newMarkerId2], newMarkerId2, self.selectionColor);
 
           range.end.row = eraserRange.start.row;
           range.end.column = eraserRange.start.column;
@@ -531,7 +586,7 @@ var Highlight = (function(){
         removed.push(range) 
         var newMarkerId = self.addMarker(range, this.clazz)
         range.id = newMarkerId;
-        self.addRangeItem(self.aceEditSession.getMarkers()[newMarkerId], newMarkerId, self.selectionColor);
+        self.addRangeListItem(self.aceEditSession.getMarkers()[newMarkerId], newMarkerId, self.selectionColor);
         return;
 
       });
@@ -589,7 +644,7 @@ var Highlight = (function(){
       });
     };
 
-    this.addRangeItem = function(marker, id, color) {
+    this.addRangeListItem = function(marker, id, color) {
       var self = this
         , rangeString = marker.range.start.row + ':' + marker.range.start.column
           + ' - ' + marker.range.end.row + ':' + marker.range.end.column
@@ -609,29 +664,51 @@ var Highlight = (function(){
       });
     };
 
-    this.drawHeatmap = function(ranges){
-      this.removeAllMarkers();
+    this.addHeatmapListItem = function(hue){
+      var self = this;
+      var heatmapItemObj = {
+        hue: hue,
+        colorClass: 'marker-' + hue,
+        description: hue
+      }
+      dust.render('heatmapListItem', heatmapItemObj, function(err,out){
+        if (err) console.log(err);
+        self.$heatmapList.append(out);
+      });
+    }
 
+    this.updateHeatmapData = function(ranges){
+      this.removeAllMarkers();
       var hmap = new Heatmap({
         textLines: this.aceEditSession.getDocument().getAllLines()
       });
+
       try{
-        ranges = JSON.parse(ranges)
+        ranges = JSON.parse(ranges);
+        hmap.addHueRanges(ranges);
+        this.heatmapData = hmap.hues;
+
+        for(var hue in this.heatmapData){
+          this.addHeatmapListItem(hue);
+        }
+        $('heatmap-labels a.list-group-item:first').trigger('click')
       }catch(err){
         console.log("Error parsing ranges", err)
       }
-      hmap.addHueRanges(ranges);
-      var hues = hmap.hues;
-      console.log(hues)
-      for (var key in hues){
-        var hue = hues[key];
-        for(var i = 0, lrow = hue.weights.length; i < lrow; i++){
-          for(var j = 0, lcol = hue.weights[i].length; j < lcol; j++){
-            var val = ~~(hue.weights[i][j] * 10);
-            if(val == 0) continue;
-            var range = new Range(i, j, i, j+1);
-            this.addMarker(range, 'ace_highlight marker-' + key + '-' + val);
-          }
+    };
+
+    this.drawHeatmap = function(hue){
+      if(! this.heatmapData[hue]){
+        throw new Error('no heatmatData found for hue ' + hue);
+      }
+      var hueData = this.heatmapData[hue];
+
+      for(var i = 0, lrow = hueData.weights.length; i < lrow; i++){
+        for(var j = 0, lcol = hueData.weights[i].length; j < lcol; j++){
+          var val = ~~(hueData.weights[i][j] * 10);
+          if(val == 0) continue;
+          var range = new Range(i, j, i, j+1);
+          this.addMarker(range, 'ace_highlight marker-' + hue + '-' + val);
         }
       }
     }
