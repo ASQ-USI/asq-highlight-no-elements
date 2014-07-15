@@ -157,10 +157,11 @@
   <script src="templates/rangeListItem.js" ></script>
   <script src="templates/occurenceListItem.js" ></script>
   <script src="templates/highlightMf.js" ></script>
-  <script src="js/highlight/task.js"></script> 
+  <script src="js/highlight/HtmlEditable.js"></script> 
+  <script src="js/highlight/HighlightTask.js"></script> 
   <script src="js/highlight/Heatmap.js"></script>  
-  <script src="js/highlight/highlight.js"></script>
-  <script src="js/highlight/editor.js"></script>
+  <script src="js/highlight/Highlight.js"></script>
+  <script src="js/highlight/Editor.js"></script>
 
 </body>
 </html>
