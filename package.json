@@ -1,6 +1,12 @@
 {
-  "name": "Challenge",
+  "name": "asq-highlight",
   "version": "0.0.1",
+  "description": "Highlight Question type and editor for ASQ",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ASQ-USI/asq-microformat"
+  },
   "dependencies": {
     "express": "3.x",
     "ejs": "0.8.x",
@@ -8,9 +14,8 @@
     "dustjs-linkedin": "^2.4.0",
     "consolidate": "~0.9.1"
   },
-  "engines": {
-    "node": "0.8.x",
-    "npm": "1.1.X"
+  "scripts": {
+    "test": "make test-unit"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
