@@ -23,6 +23,8 @@ var HighlightEditor = (function(){
    * @param {Object} options Options for the editor.
    */
   var Editor = function(options){
+    this.options = options;
+
     this.colorPalette = {
       'd9534f' :'bootstrapred',
       '428bca' : 'blue',
@@ -41,8 +43,6 @@ var HighlightEditor = (function(){
     this.activePalette = {};
     this.defaultColor = 'f0ad4e';
     this.taskCounter = 0;
-    this.highlight =  new Highlight(options.highlight);
-
 
     //DOM 
     this.rootId = options.hEditorId;
@@ -78,6 +78,14 @@ var HighlightEditor = (function(){
   (function(){
 
     this.init = function(){
+
+      //this guy does most of the work
+      this.highlight = new Highlight(this.options.highlight);
+
+      //setup event listeners for highlight
+      $(document).on('asq-hl-syntax-changed', function(event, syntax){
+         this.exportMicroformat();
+       }.bind(this));
 
       //should be empty but it's a useful visual cue
       this.exportMicroformat();
@@ -155,6 +163,8 @@ var HighlightEditor = (function(){
     }
 
     this.exportMicroformat = function(){
+
+      this.question.syntax = this.highlight.settings.syntax;
 
       this.question.tasks = $.map(this.taskItems, function(v, k) {
         return [{color: v.color, description: v.htmlEditable.unescapedText}];

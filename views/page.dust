@@ -106,10 +106,10 @@
           <div class="pull-right">
           Export:
             <div class="btn-group ">
-              <button type="button" class="btn btn-warning he-export-ranges-btn" href="">
+              <button type="button" class="btn btn-sm btn-warning he-export-ranges-btn" href="">
                  <span class="glyphicon glyphicon-save"></span> Ranges
               </button>
-                <button type="button" class="btn btn-warning" href="">
+                <button type="button" class="btn btn-sm btn-warning" href="">
                  <span class="glyphicon glyphicon-save"></span> # Occurences 
               </button>
             </div>

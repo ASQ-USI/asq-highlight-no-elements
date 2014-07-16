@@ -24,7 +24,10 @@ module.exports = function(grunt) {
           runtime : false,
           wrapper: false,
           relative: true,
-          useBaseName: true
+          useBaseName: true,
+          optimizers: {
+            format: function(ctx, node) { return node; }
+          }
         }
       },
     },

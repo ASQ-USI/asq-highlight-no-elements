@@ -58,6 +58,8 @@ var Highlight = (function(){
       syntax: 'javascript',
     };
 
+   this.settings = $.extend({}, this.defaultOptions, options)
+
     // editor
     this.MODE_HIGHLIGHT = 'modeHighlight';
     this.MODE_EDIT_TEXT = 'modeEditText';
@@ -98,7 +100,7 @@ var Highlight = (function(){
       '5cb85c' : 'green'
     }
 
-    this.settings = $.extend({}, this.defaultOptions, options)
+    
     this.$ranges = null;
     this.$occurences = null
     this.aceEditor = null;
@@ -156,18 +158,13 @@ var Highlight = (function(){
         .selectpicker()
         .on('change.he.syntax', function(event){
           var syntaxMode = $(this).find(':selected').val();
+          self.settings.syntax = syntaxMode;
           self.aceEditSession.setMode('ace/mode/'+syntaxMode);
+          $(document).trigger('asq-hl-syntax-changed', [syntaxMode]);
         });  
         //initialize syntax
         $('#syntaxSelect').selectpicker('val', self.settings.syntax)
       });
-
-      // $('#syntaxSelect')
-      //   .selectpicker()
-      //   .on('change.he.syntax', function(event){
-      //     var syntaxMode = $(this).find(':selected').val();
-      //     self.aceEditSession.setMode('ace/mode/'+syntaxMode);
-      //   });  
 
       //eraser button
       $('.he-eraser').on('click.he.eraser', function(event){
@@ -451,7 +448,9 @@ var Highlight = (function(){
     this.getHighlightMarkers = function (){
        //console.log(this.aceEditSession.getMarkers());
        return $.map(this.aceEditSession.getMarkers(), function(v,k){
-        return v.clazz.indexOf("ace_highlight")!= -1? v : null
+        return (v.clazz.indexOf("ace_highlight") != -1
+          ? v 
+          : null);
       });
     };
 
@@ -507,7 +506,7 @@ var Highlight = (function(){
       var markers = this.aceEditSession.getMarkers();
       
       for (var id in markers){
-        if(markers[id].clazz.indexOf('ace_highlight') >= 0){
+        if(markers[id].clazz.indexOf('ace_highlight') != -1){
           this.aceEditSession.removeMarker(id);
         }
       }

@@ -1,11 +1,7 @@
-<article id="ex-1" class="asq asq-highlight" 
-data-asq-assessment="auto"
-data-asq-lang-syntax="{syntax}"
-data-asq-assessment-mode="{solutionType}"
-data-asq-solution-type="ranges"
-data-asq-solution="{ranges}">
-<h2 class="stem">{stemHtml}</h2>
-{#tasks}  <div class="input-group input-group-sm">
+<article id="ex-1" class="asq-question asq-highlight" data-asq-assessment="auto" data-asq-hl-syntax="{syntax}" data-asq-assessment-mode="{solutionType}" data-asq-solution-type="ranges" data-asq-solution="{ranges}">
+  <h2 class="stem">{stemHtml}</h2>
+{#tasks}  
+  <div class="input-group input-group-sm">
     <span class="input-group-addon asq-highlight-task-color" data-color="{color}">&nbsp;</span>
     <div class="form-control">{description}</div>
   </div><!-- /input-group -->{~n}{/tasks}
